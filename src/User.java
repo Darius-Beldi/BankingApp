@@ -20,6 +20,7 @@ public class  User {
         BirthDate = _BirthDate;
     }
 
+    ///Creates a new card for the user
     public void AddCard(String _CardName){
         Card c = new Card(_CardName, FirstName + LastName);
         Cards.add(c);
