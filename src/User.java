@@ -11,6 +11,8 @@ public class  User {
     private String LastName;
     private Set<Card> Cards = new HashSet();
     private Date BirthDate;
+    private String Email;
+    private String Password;
     private Map<User, String> AdressBook = new HashMap<>();
     // AdressBook.put( Nume, IBAN   )
 
