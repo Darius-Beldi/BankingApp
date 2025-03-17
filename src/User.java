@@ -33,4 +33,18 @@ public class  User {
         this.AdressBook.put(_User, _IBAN );
     }
 
+    public void ShowDetails(){
+        System.out.println("First Name: " + FirstName);
+        System.out.println("Last Name: " + LastName);
+        System.out.println("Birth Date: " + BirthDate);
+        System.out.println("Email: " + Email);
+        System.out.println("Password: " + Password);
+    }
+    public User(String _FirstName, String _LastName, Date _BirthDate, String _Email, String _Password){
+        FirstName = _FirstName;
+        LastName = _LastName;
+        BirthDate = _BirthDate;
+        Email = _Email;
+        Password = _Password;
+    }
 }

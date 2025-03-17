@@ -1,5 +1,10 @@
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.*;
 import java.util.Scanner;
 
 public class Functions {
@@ -37,13 +42,77 @@ public class Functions {
         return true;
     }
 
-    public void Login(){
-
+    public static void Login(){
+        System.out.println("login");
     }
 
-    public void Register(){
+    public static void Register(){
         System.out.println("register");
     }
+
+    public static User[] LoadUsers(String fileLocation) throws FileNotFoundException {
+        User[] users = null;
+        users = new User[100];
+        try {
+            FileReader input = new FileReader(fileLocation);
+            BufferedReader br = new BufferedReader(input);
+            String myLine = null;
+            int count = 0;
+            while ((myLine = br.readLine()) != null) {
+                String[] data = myLine.split("/");
+                for(int i = 0; i<data.length; i++){
+                    users[count] = new User(data[0], data[1], new Date( Integer.parseInt(data[2]),  Integer.parseInt(data[3]),  Integer.parseInt(data[4])), data[5], data[6]);
+
+                }
+                count++;
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found");
+        } catch (IOException e) {
+            System.out.println(e);
+            ;
+        }
+        return users;
+    }
+
+
+    public static void LoadDataBase() {
+        String url = "jdbc:mysql://localhost:3306";
+        String username = "root";
+        String password  = "parola";
+        String query = "CREATE table test (id int, name varchar(255))";
+
+        try {
+
+            Class.forName("com.mysql.jdbc.Driver");
+            // Establish connection
+            Connection c = DriverManager.getConnection(
+                    url, username, password);
+
+            // Create a statement
+            Statement st = c.createStatement();
+
+            // Execute the query
+            int count = st.executeUpdate(query);
+            System.out.println(
+                    "Number of rows affected by this query: "
+                            + count);
+
+            // Close the connection
+            st.close();
+            c.close();
+            System.out.println("Connection closed.");
+        }
+        catch (SQLException e) {
+            System.err.println("SQL Error: "
+                    + e.getMessage());
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+
+
+    }
+
 
     public static String Crypt(String input) throws NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance("MD5");
