@@ -4,29 +4,28 @@ import java.awt.event.ActionListener;
 import java.io.FileNotFoundException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
 import Cards.Card;
-import Frames.MainFrame;
+import Connection.CardStatements;
+import Connection.ConnectionString;
+
 
 import javax.swing.*;
 import java.lang.String;
 import java.util.List;
 import java.util.function.Function;
+import User.User;
+public class Main extends CardStatements {
 
-public class Main {
+    public static void main(String[] args) throws FileNotFoundException, NoSuchAlgorithmException, SQLException {
 
-    public static void main(String[] args) throws FileNotFoundException {
+       Menu m = new Menu();
+       m.Login();
 
-        Functions f = new Functions();
-        User[] users =  f.LoadUsers("D:\\Facultate\\An 2 Sem 2\\Programare Avansata pe Obiecte\\BankingApp\\src\\SaveData\\users.txt");
-        new JButtonApp().setVisible(true);
-        for(int i = 0; i<users.length; i++){
-            if(users[i] != null){
-                users[i].ShowDetails();
-            }
-        }
 
     }
 }
