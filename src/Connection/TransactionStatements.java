@@ -7,8 +7,8 @@ import java.sql.PreparedStatement;
 public class TransactionStatements extends ConnectionString {
 
     protected static String insertTransaction = "insert into transactions " +
-            "(idtransaction, idcard, amount, date, type)" +
-            " values (?, ?, ?, ?, ?)";
+            "(idtransaction, idcard, amount, date)" +
+            " values (?, ?, ?, ?)";
 
     protected static String selectTransaction = "select * from transactions where idcard = ?";
 

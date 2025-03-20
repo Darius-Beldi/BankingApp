@@ -1,25 +1,45 @@
-import Connection.ConnectionString;
 import Connection.MenuStatements;
 
-import java.sql.PreparedStatement;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.Scanner;
-
+import User.User;
 public class Menu extends MenuStatements {
 
-    public void displayMenu() throws SQLException {
+    private static Integer idCurrentUser;
 
-        boolean login = StartUp();
-        if(login){
-            Login();
-        }else{
-            Register();
+    static {
+        idCurrentUser = -1;
+    }
+
+    public void menu() {
+        while(true){
+            if (chooseLorR()) //true= login , false = register
+                try {
+                    if (Login()) {
+                        System.out.println("Login succesful");
+                        mainPage();
+                        return;
+                    } else {
+                        System.out.println("Login failed");
+                    }
+                } catch (SQLException | NoSuchAlgorithmException e) {
+                    e.printStackTrace();
+                }
+            else {
+                Register();
+            }
         }
 
     }
+
     ///  true = login, false = register
-    public boolean StartUp(){
+    public boolean chooseLorR(){
+        System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
         System.out.println("Welcome to Banking App");
         System.out.println("Do you already have an account?");
         System.out.println("Y/N: ");
@@ -50,27 +70,210 @@ public class Menu extends MenuStatements {
         }
         return true;
     }
-
-    public static void Login() throws SQLException {
-        System.out.println("Login");
+    /// true = login was succesful
+    public static boolean Login() throws SQLException, NoSuchAlgorithmException {
+        System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+        System.out.println("LOGIN");
         System.out.println("Email: ");
         String _email = new Scanner(System.in).nextLine();
 
         checkForExistingEmailStatement.setString(1, _email);
         ResultSet rs = checkForExistingEmailStatement.executeQuery();
-
+        String foundEmail = "";
         if(rs.next()){
-            String foundEmail = rs.getString(1);
+            foundEmail = rs.getString(1);
         }
 
-        System.out.println("Password: ");
-        String password = new Scanner(System.in).nextLine();
+        if(foundEmail.equals(_email)){
+            boolean ok = false;
+            for(int i = 3; i>=0; i--){
+                System.out.println("Password: ");
+                String _password = new Scanner(System.in).nextLine();
+                getPasswordStatement.setString(1, _email);
+                ResultSet password = getPasswordStatement.executeQuery();
+                if(password.next()){
+                    if(password.getString(1).equals(Crypt(_password))){
 
+                        getIdStatement.setString(1, foundEmail);
+                        ResultSet id = getIdStatement.executeQuery();
+                        if(id.next()){
+                            idCurrentUser = id.getInt(1);
+                        }
+
+                        return true;
+                    }
+                    else{
+                        System.out.println("Wrong password. Attempts left: " + i);
+                    }
+                }
+            }
+            return ok;
+        }
+       return false;
+    }
+
+    public static void Register() {
+        System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+        System.out.println("REGISTER");
+        System.out.println("First Name: ");
+        String _FirstName = new Scanner(System.in).nextLine();
+        System.out.println("Last Name: ");
+        String _LastName = new Scanner(System.in).nextLine();
+        System.out.println("Birth Date: (yyyy-mm-dd)");
+        int[] _Birth_date = Arrays.stream(new Scanner(System.in).nextLine().split("-")).mapToInt(Integer::parseInt).toArray();
+        System.out.println("Email: ");
+        String _Email = new Scanner(System.in).nextLine();
+        System.out.println("Password: ");
+        String _Password = new Scanner(System.in).nextLine();
+        System.out.println("Confirm Password: ");
+        String _ConfirmPassword = new Scanner(System.in).nextLine();
+        if (_Password.equals(_ConfirmPassword)) {
+            try {
+                User user = new User(_FirstName, _LastName, new Date(_Birth_date[0] - 1900, _Birth_date[1], _Birth_date[2]), _Email, _Password, false);
+                idCurrentUser = user.getIdUser();
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    public void mainPage() throws SQLException {
+        System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+        System.out.println("MAIN PAGE");
+        System.out.println("1. View Account");
+        System.out.println("2. Transfer Money");
+        System.out.println("3. View Transactions");
+        System.out.println("4. Logout");
+        System.out.println("5. Exit");
+        Scanner sc = new Scanner(System.in);
+        while(true){
+            String option = sc.nextLine();
+            switch(option){
+                case "1":
+                    viewAccount();
+                    break;
+                case "2":
+                    transferMoney();
+                    break;
+                case "3":
+                    viewTransactions();
+                    break;
+                case "4":
+                    menu();
+                    return;
+                case "5":
+                    System.exit(0);
+                    break;
+                default:
+                    System.out.println("Wrong input. Please try again");
+                    break;
+            }
+        }
 
 
     }
 
-    public static void Register(){
-        System.out.println("register");
+    private void viewTransactions() {
+        System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+    }
+
+    private void transferMoney() {
+        System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+    }
+
+    private void viewAccount() throws SQLException {
+        System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+        System.out.println("VIEW ACCOUNT");
+        System.out.println("1. View Details");
+        System.out.println("2. Change Password");
+        System.out.println("3. Back");
+        Scanner sc = new Scanner(System.in);
+        while(true){
+            String option = sc.nextLine();
+            switch(option){
+                case "1":
+                    viewDetails();
+                    break;
+                case "2":
+                    changePassword();
+                    break;
+                case "3":
+                    mainPage();
+                    return;
+                default:
+                    System.out.println("Wrong input. Please try again");
+                    break;
+            }
+        }
+    }
+
+    private void changePassword() {
+        System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+        System.out.println("CHANGE PASSWORD");
+//        System.out.println("Old Password: ");
+//        String oldPassword = new Scanner(System.in).nextLine();
+//        System.out.println("New Password: ");
+//        String newPassword = new Scanner(System.in).nextLine();
+//        System.out.println("Confirm New Password: ");
+//        String confirmNewPassword = new Scanner(System.in).nextLine();
+//        if(newPassword.equals(confirmNewPassword)){
+//            try {
+//                changePasswordStatement.setString(1, Crypt(newPassword));
+//                changePasswordStatement.setString(2, Crypt(oldPassword));
+//                changePasswordStatement.executeUpdate();
+//            } catch (SQLException | NoSuchAlgorithmException e) {
+//                e.printStackTrace();
+//            }
+//        }
+    }
+
+    private void viewDetails() throws SQLException {
+        System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+        System.out.println("VIEW DETAILS");
+        try {
+            getDetailsStatement.setInt(1, idCurrentUser);
+            ResultSet rs = getDetailsStatement.executeQuery();
+            if (rs.next()) {
+                System.out.println("First Name: " + rs.getString(1));
+                System.out.println("Last Name: " + rs.getString(2));
+                System.out.println("Birth Date: " + rs.getDate(3));
+                System.out.println("Email: " + rs.getString(4));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+        }
+
+        System.out.println("1. Back");
+        Scanner sc = new Scanner(System.in);
+        while(true){
+            String option = sc.nextLine();
+            switch(option){
+                case "1":
+                    viewAccount();
+                    return;
+                default:
+                    System.out.println("Wrong input. Please try again");
+                    break;
+            }
+        }
+    }
+
+
+    public static String Crypt(String input) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("MD5");
+        md.update(input.getBytes());
+        byte[] digest = md.digest();
+
+        // Convert byte array to hexadecimal string
+        StringBuilder hexString = new StringBuilder();
+        for (byte b : digest) {
+            String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
+        }
+
+        return hexString.toString();
     }
 }
