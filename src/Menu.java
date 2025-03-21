@@ -1,3 +1,4 @@
+import Cards.Card;
 import Connection.MenuStatements;
 
 import java.security.MessageDigest;
@@ -39,7 +40,6 @@ public class Menu extends MenuStatements {
 
     ///  true = login, false = register
     public boolean chooseLorR(){
-        System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
         System.out.println("Welcome to Banking App");
         System.out.println("Do you already have an account?");
         System.out.println("Y/N: ");
@@ -72,7 +72,6 @@ public class Menu extends MenuStatements {
     }
     /// true = login was succesful
     public static boolean Login() throws SQLException, NoSuchAlgorithmException {
-        System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
         System.out.println("LOGIN");
         System.out.println("Email: ");
         String _email = new Scanner(System.in).nextLine();
@@ -113,7 +112,6 @@ public class Menu extends MenuStatements {
     }
 
     public static void Register() throws SQLException {
-        System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
         System.out.println("REGISTER");
         System.out.println("First Name: ");
         String _FirstName = new Scanner(System.in).nextLine();
@@ -163,13 +161,14 @@ public class Menu extends MenuStatements {
         }
     }
     public void mainPage() throws SQLException {
-        System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
         System.out.println("MAIN PAGE");
         System.out.println("1. View Account");
         System.out.println("2. Transfer Money");
         System.out.println("3. View Transactions");
-        System.out.println("4. Logout");
-        System.out.println("5. Exit");
+        System.out.println("4. Create a new Card");
+        System.out.println("5. Logout");
+        System.out.println("6. Exit");
+
         Scanner sc = new Scanner(System.in);
         while(true){
             String option = sc.nextLine();
@@ -184,9 +183,11 @@ public class Menu extends MenuStatements {
                     viewTransactions();
                     break;
                 case "4":
+                    createCard();
+                case "5":
                     menu();
                     return;
-                case "5":
+                case "6":
                     System.exit(0);
                     break;
                 default:
@@ -198,24 +199,31 @@ public class Menu extends MenuStatements {
 
     }
 
+    private void createCard() throws SQLException {
+
+        System.out.println("CREATE CARD");
+        System.out.println("Card Name: ");
+        String _CardName = new Scanner(System.in).nextLine();
+        Card c = new Card(idCurrentUser, _CardName);
+        return;
+    }
+
     private void viewTransactions() {
-        System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
     }
 
     private void transferMoney() {
-        System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
     }
 
     private void viewAccount() throws SQLException {
 
-        System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
         while(true){
 
 
             System.out.println("VIEW ACCOUNT");
             System.out.println("1. View Details");
             System.out.println("2. Change Password");
-            System.out.println("3. Back");
+            System.out.println("3. See Cards");
+            System.out.println("4. Back");
             Scanner sc = new Scanner(System.in);
             String option = sc.nextLine();
             switch(option){
@@ -226,6 +234,9 @@ public class Menu extends MenuStatements {
                     changePassword();
                     break;
                 case "3":
+                    seeCards();
+                    break;
+                case "4":
                     mainPage();
                     return;
                 default:
@@ -235,8 +246,30 @@ public class Menu extends MenuStatements {
         }
     }
 
+    private void seeCards() {
+
+        System.out.println("CARDS");
+        try {
+            getCardsStatement.setInt(1, idCurrentUser);
+            ResultSet rs = getCardsStatement.executeQuery();
+            while(rs.next()) {
+                System.out.println("Card Name: " + rs.getString(1));
+                System.out.println("IBAN: " + rs.getString(2));
+                System.out.println("Number: " + rs.getString(3));
+                System.out.println("Name: " + rs.getString(4));
+                System.out.println("Month: " + rs.getInt(5));
+                System.out.println("Year: " + rs.getInt(6));
+                System.out.println("CVV: " + rs.getInt(7));
+                System.out.println("Balance: " + rs.getInt(8));
+                System.out.println("\n");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+    }
+
     private void changePassword() {
-        System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
         System.out.println("CHANGE PASSWORD");
         System.out.println("Old Password: ");
         String oldPassword = new Scanner(System.in).nextLine();
@@ -270,7 +303,6 @@ public class Menu extends MenuStatements {
     }
 
     private void viewDetails() throws SQLException {
-        System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
         System.out.println("VIEW DETAILS");
         try {
             getDetailsStatement.setInt(1, idCurrentUser);

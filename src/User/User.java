@@ -6,6 +6,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+
+import Cards.Card;
 import Connection.*;
 
 public class  User extends UserStatements{
@@ -18,8 +20,6 @@ public class  User extends UserStatements{
     private String Email;
     private String Password;
 
-
-    // AdressBook.put( Nume, IBAN   )
     static {
         try {
             PreparedStatement selectStatement = c.prepareStatement("SELECT idUser FROM Users ORDER BY idUser DESC LIMIT 1");
@@ -46,10 +46,11 @@ public class  User extends UserStatements{
         BirthDate = _BirthDate;
         Email = _Email;
         Password = Crypt(_Password);
-
        if(!alreadyInDatabase)
             AddToDatabase();
     }
+
+
 
 
     private void AddToDatabase(){

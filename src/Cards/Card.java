@@ -42,18 +42,28 @@ public class Card extends CardStatements {
     }
 
     /// New Card Generator
-    public Card(User user, String _CardName) throws SQLException {
+    public Card(Integer _idUser, String _CardName) throws SQLException {
         generatedIdCard += 1;
         CardName = _CardName;
-        Name = user.getLastName() + user.getFirstName();
+
+        getUserFirstNameStatement.setInt(1, _idUser);
+        ResultSet rs = getUserFirstNameStatement.executeQuery();
+        rs.next();
+        Name = rs.getString(1);
+
+        getUserLastNameStatement.setInt(1, _idUser);
+        ResultSet rs2 = getUserLastNameStatement.executeQuery();
+        rs2.next();
+        Name += rs2.getString(1);
+
         IBAN = generateIBAN();
         Number = generateNumber();
         Month = rand.nextInt(12) + 1;
         Year = 25 + rand.nextInt(7);
         CVV = generateCVV();
-        Balance = 0;
+        Balance = 200;
         idCard = generatedIdCard;
-        idUser = user.getIdUser();
+        idUser = _idUser;
         insertIntoDatabase();
     }
 

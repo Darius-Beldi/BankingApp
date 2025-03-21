@@ -11,6 +11,8 @@ public class MenuStatements extends ConnectionString {
     public static String getId = "SELECT iduser FROM users WHERE email = ?";
     public static String getPasswordbyID = "SELECT password FROM users WHERE iduser = ?";
     public static String updatePassword = "UPDATE users SET password = ? WHERE iduser = ?";
+    public static String getCards = "SELECT cardname, iban, cardnumber, name, month, year, cvv, balance FROM cards WHERE iduser = ?";
+
 
     public static PreparedStatement checkForExistingEmailStatement;
     public static PreparedStatement getPasswordStatement;
@@ -18,6 +20,7 @@ public class MenuStatements extends ConnectionString {
     public static PreparedStatement getDetailsStatement;
     public static PreparedStatement getPasswordbyIDStatement;
     public static PreparedStatement updatePasswordStatement;
+    public static PreparedStatement getCardsStatement;
 
     static {
         try{
@@ -27,6 +30,7 @@ public class MenuStatements extends ConnectionString {
             getDetailsStatement = c.prepareStatement(getDetails);
             getPasswordbyIDStatement = c.prepareStatement(getPasswordbyID);
             updatePasswordStatement = c.prepareStatement(updatePassword);
+            getCardsStatement = c.prepareStatement(getCards);
 
 
         } catch (SQLException e) {
