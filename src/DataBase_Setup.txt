@@ -1,0 +1,30 @@
+create table Users (
+    idUser int primary key,
+    FirstName varchar(255),
+    LastName varchar(255),
+    BirthDate date,
+    Email varchar(255),
+    Password varchar(255)
+);
+
+create table Cards (
+    idCard int primary key,
+    idUser int,
+    Name varchar(255),
+    cardName varchar(255),
+    IBAN varchar(255),
+    CardNumber varchar(255),
+    Month INT,
+    Year INT,
+    CVV int,
+    Balance int,
+    FOREIGN KEY (idUser) REFERENCES Users(idUser)
+);
+
+create table Transactions(
+    idTransaction int primary key,
+    idCard int,
+    date date,
+    amount int,
+    FOREIGN KEY (idCard) REFERENCES cards(idCard)
+);

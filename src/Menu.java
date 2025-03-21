@@ -16,7 +16,7 @@ public class Menu extends MenuStatements {
         idCurrentUser = -1;
     }
 
-    public void menu() {
+    public void menu() throws SQLException {
         while(true){
             if (chooseLorR()) //true= login , false = register
                 try {
@@ -112,17 +112,43 @@ public class Menu extends MenuStatements {
        return false;
     }
 
-    public static void Register() {
+    public static void Register() throws SQLException {
         System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
         System.out.println("REGISTER");
         System.out.println("First Name: ");
         String _FirstName = new Scanner(System.in).nextLine();
         System.out.println("Last Name: ");
         String _LastName = new Scanner(System.in).nextLine();
-        System.out.println("Birth Date: (yyyy-mm-dd)");
-        int[] _Birth_date = Arrays.stream(new Scanner(System.in).nextLine().split("-")).mapToInt(Integer::parseInt).toArray();
-        System.out.println("Email: ");
-        String _Email = new Scanner(System.in).nextLine();
+
+
+        int[] _Birth_date;
+        while(true){
+            System.out.println("Birth Date: (yyyy-mm-dd)");
+            try{
+            _Birth_date = Arrays.stream(new Scanner(System.in).nextLine().split("-")).mapToInt(Integer::parseInt).toArray();
+            }catch (Exception e){
+                System.out.println("Invalid date format");
+                continue;
+            }
+            break;
+
+        }
+
+
+        String _Email = "";
+        while (true){
+            System.out.println("Email: ");
+            _Email = new Scanner(System.in).nextLine();
+
+            checkForExistingEmailStatement.setString(1, _Email);
+            ResultSet rs = checkForExistingEmailStatement.executeQuery();
+            if(rs.next()){
+                System.out.println("Email already in use");
+            }
+            else break;
+        }
+
+
         System.out.println("Password: ");
         String _Password = new Scanner(System.in).nextLine();
         System.out.println("Confirm Password: ");
@@ -181,13 +207,15 @@ public class Menu extends MenuStatements {
     }
 
     private void viewAccount() throws SQLException {
+
         System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-        System.out.println("VIEW ACCOUNT");
-        System.out.println("1. View Details");
-        System.out.println("2. Change Password");
-        System.out.println("3. Back");
-        Scanner sc = new Scanner(System.in);
         while(true){
+
+            System.out.println("VIEW ACCOUNT");
+            System.out.println("1. View Details");
+            System.out.println("2. Change Password");
+            System.out.println("3. Back");
+            Scanner sc = new Scanner(System.in);
             String option = sc.nextLine();
             switch(option){
                 case "1":
@@ -209,21 +237,35 @@ public class Menu extends MenuStatements {
     private void changePassword() {
         System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
         System.out.println("CHANGE PASSWORD");
-//        System.out.println("Old Password: ");
-//        String oldPassword = new Scanner(System.in).nextLine();
-//        System.out.println("New Password: ");
-//        String newPassword = new Scanner(System.in).nextLine();
-//        System.out.println("Confirm New Password: ");
-//        String confirmNewPassword = new Scanner(System.in).nextLine();
-//        if(newPassword.equals(confirmNewPassword)){
-//            try {
-//                changePasswordStatement.setString(1, Crypt(newPassword));
-//                changePasswordStatement.setString(2, Crypt(oldPassword));
-//                changePasswordStatement.executeUpdate();
-//            } catch (SQLException | NoSuchAlgorithmException e) {
-//                e.printStackTrace();
-//            }
-//        }
+        System.out.println("Old Password: ");
+        String oldPassword = new Scanner(System.in).nextLine();
+        System.out.println("New Password: ");
+        String newPassword = new Scanner(System.in).nextLine();
+        System.out.println("Confirm New Password: ");
+        String confirmNewPassword = new Scanner(System.in).nextLine();
+        if(newPassword.equals(confirmNewPassword)){
+            try {
+
+                getPasswordbyIDStatement.setInt(1, idCurrentUser);
+                ResultSet rs = getPasswordbyIDStatement.executeQuery();
+                if(rs.next()){
+                    if(rs.getString(1).equals(Crypt(oldPassword))){
+                        updatePasswordStatement.setString(1, Crypt(newPassword));
+                        updatePasswordStatement.setInt(2, idCurrentUser);
+                        updatePasswordStatement.execute();
+                        return;
+                    }
+                    else{
+                        System.out.println("Wrong password");
+                        return;
+                    }
+                }
+
+
+            } catch (SQLException | NoSuchAlgorithmException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private void viewDetails() throws SQLException {
