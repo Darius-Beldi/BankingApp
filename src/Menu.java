@@ -211,6 +211,7 @@ public class Menu extends MenuStatements {
         System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
         while(true){
 
+
             System.out.println("VIEW ACCOUNT");
             System.out.println("1. View Details");
             System.out.println("2. Change Password");
