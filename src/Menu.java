@@ -5,16 +5,18 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Scanner;
+import java.util.*;
+
 import User.User;
 public class Menu extends MenuStatements {
 
     private static Integer idCurrentUser;
+    private static User currentUser;
+    private static Set<Card> cards;
 
     static {
         idCurrentUser = -1;
+        cards = new HashSet<>();
     }
 
     public void menu() throws SQLException {
@@ -93,10 +95,36 @@ public class Menu extends MenuStatements {
                 if(password.next()){
                     if(password.getString(1).equals(Crypt(_password))){
 
-                        getIdStatement.setString(1, foundEmail);
-                        ResultSet id = getIdStatement.executeQuery();
-                        if(id.next()){
-                            idCurrentUser = id.getInt(1);
+                        getUserStatement.setString(1, foundEmail);
+                        ResultSet rsUser = getUserStatement.executeQuery();
+                        if(rsUser.next()){
+                            int id = rsUser.getInt(1);
+                            String firstName = rsUser.getString(2);
+                            String lastName = rsUser.getString(3);
+                            Date birthDate = rsUser.getDate(4);
+                            String email = rsUser.getString(5);
+                            String password1 = rsUser.getString(6);
+                            currentUser = new User(id, firstName, lastName, birthDate, email, password1, true);
+                            System.out.println(password1);
+                            }
+
+                        getCardsStatement.setInt(1, currentUser.getIdUser());
+                        ResultSet rsCards = getCardsStatement.executeQuery();
+                        while(rsCards.next()){
+                            Integer id = rsCards.getInt(1);
+                            Integer idUser = rsCards.getInt(2);
+                            String Name = rsCards.getString(3);
+                            String cardName = rsCards.getString(4);
+                            String IBAN = rsCards.getString(5);
+                            String Number = rsCards.getString(6);
+                            Integer Month = rsCards.getInt(7);
+                            Integer Year = rsCards.getInt(8);
+                            Integer CVV = rsCards.getInt(9);
+                            Integer Balance = rsCards.getInt(10);
+
+                            Card c = new Card(id, idUser, Name, cardName, IBAN, Number, Month, Year, CVV, Balance);
+
+                            cards.add(c);
                         }
 
                         return true;
@@ -119,11 +147,18 @@ public class Menu extends MenuStatements {
         String _LastName = new Scanner(System.in).nextLine();
 
 
-        int[] _Birth_date;
+        int[] _Birth_datearray;
+        Date _Birth_date;
         while(true){
             System.out.println("Birth Date: (yyyy-mm-dd)");
             try{
-            _Birth_date = Arrays.stream(new Scanner(System.in).nextLine().split("-")).mapToInt(Integer::parseInt).toArray();
+            _Birth_datearray = Arrays.stream(new Scanner(System.in).nextLine().split("-")).mapToInt(Integer::parseInt).toArray();
+            if(_Birth_datearray[1] >= 12 || _Birth_datearray[1] <= 1 || _Birth_datearray[2] >= 31 || _Birth_datearray[2] <= 1){
+                System.out.println("Invalid date format");
+                continue;
+            }
+
+            _Birth_date = new Date(_Birth_datearray[0] - 1900, _Birth_datearray[1]-1, _Birth_datearray[2]-1);
             }catch (Exception e){
                 System.out.println("Invalid date format");
                 continue;
@@ -153,47 +188,49 @@ public class Menu extends MenuStatements {
         String _ConfirmPassword = new Scanner(System.in).nextLine();
         if (_Password.equals(_ConfirmPassword)) {
             try {
-                User user = new User(_FirstName, _LastName, new Date(_Birth_date[0] - 1900, _Birth_date[1], _Birth_date[2]), _Email, _Password, false);
-                idCurrentUser = user.getIdUser();
+                currentUser = new User(0,_FirstName, _LastName, _Birth_date, _Email, _Password, false);
+
             } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();
             }
         }
     }
     public void mainPage() throws SQLException {
-        System.out.println("MAIN PAGE");
-        System.out.println("1. View Account");
-        System.out.println("2. Transfer Money");
-        System.out.println("3. View Transactions");
-        System.out.println("4. Create a new Card");
-        System.out.println("5. Logout");
-        System.out.println("6. Exit");
-
-        Scanner sc = new Scanner(System.in);
         while(true){
-            String option = sc.nextLine();
-            switch(option){
-                case "1":
-                    viewAccount();
-                    break;
-                case "2":
-                    transferMoney();
-                    break;
-                case "3":
-                    viewTransactions();
-                    break;
-                case "4":
-                    createCard();
-                case "5":
-                    menu();
-                    return;
-                case "6":
-                    System.exit(0);
-                    break;
-                default:
-                    System.out.println("Wrong input. Please try again");
-                    break;
-            }
+            System.out.println("MAIN PAGE");
+            System.out.println("1. View Account");
+            System.out.println("2. Transfer Money");
+            System.out.println("3. View Transactions");
+            System.out.println("4. Create a new Card");
+            System.out.println("5. Logout");
+            System.out.println("6. Exit");
+
+            Scanner sc = new Scanner(System.in);
+
+                String option = sc.nextLine();
+                switch(option){
+                    case "1":
+                        viewAccount();
+                        break;
+                    case "2":
+                        transferMoney();
+                        break;
+                    case "3":
+                        viewTransactions();
+                        break;
+                    case "4":
+                        createCard();
+                        break;
+                    case "5":
+                        menu();
+                        return;
+                    case "6":
+                        System.exit(0);
+                        break;
+                    default:
+                        System.out.println("Wrong input. Please try again");
+                        break;
+                }
         }
 
 
@@ -204,7 +241,9 @@ public class Menu extends MenuStatements {
         System.out.println("CREATE CARD");
         System.out.println("Card Name: ");
         String _CardName = new Scanner(System.in).nextLine();
-        Card c = new Card(idCurrentUser, _CardName);
+        Card c = new Card(currentUser.getIdUser(), _CardName);
+        cards.add(c);
+        System.out.println("Card created succesfully");
         return;
     }
 
@@ -249,24 +288,16 @@ public class Menu extends MenuStatements {
     private void seeCards() {
 
         System.out.println("CARDS");
-        try {
-            getCardsStatement.setInt(1, idCurrentUser);
-            ResultSet rs = getCardsStatement.executeQuery();
-            while(rs.next()) {
-                System.out.println("Card Name: " + rs.getString(1));
-                System.out.println("IBAN: " + rs.getString(2));
-                System.out.println("Number: " + rs.getString(3));
-                System.out.println("Name: " + rs.getString(4));
-                System.out.println("Month: " + rs.getInt(5));
-                System.out.println("Year: " + rs.getInt(6));
-                System.out.println("CVV: " + rs.getInt(7));
-                System.out.println("Balance: " + rs.getInt(8));
-                System.out.println("\n");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        for(Card c : cards) {
+            System.out.println("Card Name: " + c.getCardName());
+            System.out.println("IBAN: " + c.getIBAN());
+            System.out.println("Number: " + c.getNumber());
+            System.out.println("Name: " + c.getName());
+            System.out.println("Expiration Date: " + c.getMonth() + "/" + c.getYear());
+            System.out.println("CVV: " + c.getCVV());
+            System.out.println("Balance: " + c.getBalance());
+            System.out.println("\n");
         }
-
     }
 
     private void changePassword() {
@@ -280,20 +311,20 @@ public class Menu extends MenuStatements {
         if(newPassword.equals(confirmNewPassword)){
             try {
 
-                getPasswordbyIDStatement.setInt(1, idCurrentUser);
-                ResultSet rs = getPasswordbyIDStatement.executeQuery();
-                if(rs.next()){
-                    if(rs.getString(1).equals(Crypt(oldPassword))){
+
+                    if(currentUser.getPassword().equals(Crypt(oldPassword))){
                         updatePasswordStatement.setString(1, Crypt(newPassword));
-                        updatePasswordStatement.setInt(2, idCurrentUser);
+                        updatePasswordStatement.setInt(2, currentUser.getIdUser());
                         updatePasswordStatement.execute();
+                        currentUser.setPassword(Crypt(newPassword));
+                        System.out.println("Password changed succesfully");
                         return;
                     }
                     else{
                         System.out.println("Wrong password");
                         return;
                     }
-                }
+
 
 
             } catch (SQLException | NoSuchAlgorithmException e) {
@@ -304,19 +335,14 @@ public class Menu extends MenuStatements {
 
     private void viewDetails() throws SQLException {
         System.out.println("VIEW DETAILS");
-        try {
-            getDetailsStatement.setInt(1, idCurrentUser);
-            ResultSet rs = getDetailsStatement.executeQuery();
-            if (rs.next()) {
-                System.out.println("First Name: " + rs.getString(1));
-                System.out.println("Last Name: " + rs.getString(2));
-                System.out.println("Birth Date: " + rs.getDate(3));
-                System.out.println("Email: " + rs.getString(4));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
 
-        }
+
+        System.out.println("First Name: " + currentUser.getFirstName());
+        System.out.println("Last Name: " + currentUser.getLastName());
+        System.out.println("Birth Date: " + currentUser.getBirthDate());
+        System.out.println("Email: " + currentUser.getEmail());
+
+
 
         System.out.println("1. Back");
         Scanner sc = new Scanner(System.in);

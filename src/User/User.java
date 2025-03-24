@@ -38,14 +38,21 @@ public class  User extends UserStatements{
             e.printStackTrace(); // Consider logging the exception
         }
     }
-    public User(String _FirstName, String _LastName, Date _BirthDate, String _Email, String _Password, Boolean alreadyInDatabase) throws NoSuchAlgorithmException {
-        generatedIdUser++;
-        idUser = generatedIdUser;
+    public User(Integer _id, String _FirstName, String _LastName, Date _BirthDate, String _Email, String _Password, Boolean alreadyInDatabase) throws NoSuchAlgorithmException {
+        if(alreadyInDatabase){
+            idUser = _id;
+            Password = _Password;
+        }
+        else{
+            generatedIdUser++;
+            idUser = generatedIdUser;
+            Password = Crypt(_Password);
+        }
         FirstName = _FirstName;
         LastName = _LastName;
         BirthDate = _BirthDate;
         Email = _Email;
-        Password = Crypt(_Password);
+
        if(!alreadyInDatabase)
             AddToDatabase();
     }
@@ -119,5 +126,9 @@ public class  User extends UserStatements{
 
     public String getPassword() {
         return Password;
+    }
+
+    public void setPassword(String crypt) {
+        Password = crypt;
     }
 }

@@ -4,6 +4,7 @@
     <data-source source="LOCAL" name="cuadmin" uuid="bc2294f9-c1bf-459f-b3cd-afa3513a0366">
       <driver-ref>mysql.8</driver-ref>
       <synchronize>true</synchronize>
+      <schema-control>MANUAL</schema-control>
       <jdbc-driver>com.mysql.jdbc.Driver</jdbc-driver>
       <jdbc-url>jdbc:mysql://localhost:3306</jdbc-url>
       <jdbc-additional-properties>

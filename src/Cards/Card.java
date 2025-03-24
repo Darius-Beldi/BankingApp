@@ -67,6 +67,22 @@ public class Card extends CardStatements {
         insertIntoDatabase();
     }
 
+    public Card(Integer id, Integer idUser, String name, String cardName, String iban, String number, Integer month, Integer year, Integer cvv, Integer balance) {
+
+        idCard = id;
+        this.idUser = idUser;
+        Name = name;
+        CardName = cardName;
+        IBAN = iban;
+        Number = number;
+        Month = month;
+        Year = year;
+        CVV = cvv;
+        Balance = balance;
+
+    }
+
+
     private void insertIntoDatabase() {
         try{
             insertCardStatement.setInt(1, idCard);
@@ -163,6 +179,22 @@ public class Card extends CardStatements {
         System.out.println("Expiration Date: " + Month + "/" + Year);
         System.out.println("CVV: " + CVV);
         }
+
+    public static int getGeneratedIdCard() {
+        return generatedIdCard;
+    }
+
+    public int getIdCard() {
+        return idCard;
+    }
+
+    public Integer getIdUser() {
+        return idUser;
+    }
+
+    public Integer getBalance() {
+        return Balance;
+    }
 
     public String ShowDetails(){
        String details = "";
