@@ -12,11 +12,9 @@ public class Menu extends MenuStatements {
 
     private static Integer idCurrentUser;
     private static User currentUser;
-    private static Set<Card> cards;
 
     static {
         idCurrentUser = -1;
-        cards = new HashSet<>();
     }
 
     public void menu() throws SQLException {
@@ -104,28 +102,11 @@ public class Menu extends MenuStatements {
                             Date birthDate = rsUser.getDate(4);
                             String email = rsUser.getString(5);
                             String password1 = rsUser.getString(6);
-                            currentUser = new User(id, firstName, lastName, birthDate, email, password1, true);
+                            currentUser = new User(id, firstName, lastName, birthDate, email, password1, true, new HashSet<>());
                             System.out.println(password1);
                             }
 
-                        getCardsStatement.setInt(1, currentUser.getIdUser());
-                        ResultSet rsCards = getCardsStatement.executeQuery();
-                        while(rsCards.next()){
-                            Integer id = rsCards.getInt(1);
-                            Integer idUser = rsCards.getInt(2);
-                            String Name = rsCards.getString(3);
-                            String cardName = rsCards.getString(4);
-                            String IBAN = rsCards.getString(5);
-                            String Number = rsCards.getString(6);
-                            Integer Month = rsCards.getInt(7);
-                            Integer Year = rsCards.getInt(8);
-                            Integer CVV = rsCards.getInt(9);
-                            Integer Balance = rsCards.getInt(10);
 
-                            Card c = new Card(id, idUser, Name, cardName, IBAN, Number, Month, Year, CVV, Balance);
-
-                            cards.add(c);
-                        }
 
                         return true;
                     }
@@ -188,13 +169,14 @@ public class Menu extends MenuStatements {
         String _ConfirmPassword = new Scanner(System.in).nextLine();
         if (_Password.equals(_ConfirmPassword)) {
             try {
-                currentUser = new User(0,_FirstName, _LastName, _Birth_date, _Email, _Password, false);
+                currentUser = new User(0,_FirstName, _LastName, _Birth_date, _Email, _Password, false, new HashSet<>());
 
             } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();
             }
         }
     }
+
     public void mainPage() throws SQLException {
         while(true){
             System.out.println("MAIN PAGE");
@@ -242,7 +224,7 @@ public class Menu extends MenuStatements {
         System.out.println("Card Name: ");
         String _CardName = new Scanner(System.in).nextLine();
         Card c = new Card(currentUser.getIdUser(), _CardName);
-        cards.add(c);
+        currentUser.AddCard(c);
         System.out.println("Card created succesfully");
         return;
     }
@@ -251,6 +233,28 @@ public class Menu extends MenuStatements {
     }
 
     private void transferMoney() {
+//        while(true){
+//            System.out.println("TRANSFER MONEY");
+//            System.out.println("1. Transfer to another card");
+//            System.out.println("2. Transfer to another account");
+//            System.out.println("3. Back");
+//            Scanner sc = new Scanner(System.in);
+//            String option = sc.nextLine();
+//            switch(option){
+//                case "1":
+//                    transferToCard();
+//                    break;
+//                case "2":
+//                    transferToAccount();
+//                    break;
+//                case "3":
+//                    mainPage();
+//                    return;
+//                default:
+//                    System.out.println("Wrong input. Please try again");
+//                    break;
+//            }
+//        }
     }
 
     private void viewAccount() throws SQLException {
@@ -285,10 +289,32 @@ public class Menu extends MenuStatements {
         }
     }
 
-    private void seeCards() {
+    private void seeCards() throws SQLException {
+
+        getCardsStatement.setInt(1, currentUser.getIdUser());
+        ResultSet rsCards = getCardsStatement.executeQuery();
+        Set <Card> cardstemp = new HashSet<>();
+        while(rsCards.next()){
+
+            Integer id = rsCards.getInt(1);
+            Integer idUser = rsCards.getInt(2);
+            String Name = rsCards.getString(3);
+            String cardName = rsCards.getString(4);
+            String IBAN = rsCards.getString(5);
+            String Number = rsCards.getString(6);
+            Integer Month = rsCards.getInt(7);
+            Integer Year = rsCards.getInt(8);
+            Integer CVV = rsCards.getInt(9);
+            Integer Balance = rsCards.getInt(10);
+
+            Card c = new Card(id, idUser, Name, cardName, IBAN, Number, Month, Year, CVV, Balance);
+
+            cardstemp.add(c);
+        }
+        currentUser.UpdateCards(cardstemp);
 
         System.out.println("CARDS");
-        for(Card c : cards) {
+        for(Card c : currentUser.getCards()) {
             System.out.println("Card Name: " + c.getCardName());
             System.out.println("IBAN: " + c.getIBAN());
             System.out.println("Number: " + c.getNumber());

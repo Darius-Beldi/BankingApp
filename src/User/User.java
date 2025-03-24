@@ -19,7 +19,11 @@ public class  User extends UserStatements{
     private Date BirthDate;
     private String Email;
     private String Password;
+    private Set<Card> cards;
 
+    {
+        cards = new HashSet<>();
+    }
     static {
         try {
             PreparedStatement selectStatement = c.prepareStatement("SELECT idUser FROM Users ORDER BY idUser DESC LIMIT 1");
@@ -38,10 +42,11 @@ public class  User extends UserStatements{
             e.printStackTrace(); // Consider logging the exception
         }
     }
-    public User(Integer _id, String _FirstName, String _LastName, Date _BirthDate, String _Email, String _Password, Boolean alreadyInDatabase) throws NoSuchAlgorithmException {
+    public User(Integer _id, String _FirstName, String _LastName, Date _BirthDate, String _Email, String _Password, Boolean alreadyInDatabase, Set<Card> _cards) throws NoSuchAlgorithmException {
         if(alreadyInDatabase){
             idUser = _id;
             Password = _Password;
+            cards = _cards;
         }
         else{
             generatedIdUser++;
@@ -57,7 +62,13 @@ public class  User extends UserStatements{
             AddToDatabase();
     }
 
+    public void UpdateCards(Set<Card> _cards){
+        cards = _cards;
+    }
 
+    public Set<Card> getCards(){
+        return cards;
+    }
 
 
     private void AddToDatabase(){
@@ -130,5 +141,9 @@ public class  User extends UserStatements{
 
     public void setPassword(String crypt) {
         Password = crypt;
+    }
+
+    public void AddCard(Card c) {
+        cards.add(c);
     }
 }
