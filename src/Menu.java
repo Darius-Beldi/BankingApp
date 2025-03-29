@@ -102,7 +102,7 @@ public class Menu extends MenuStatements {
                             Date birthDate = rsUser.getDate(4);
                             String email = rsUser.getString(5);
                             String password1 = rsUser.getString(6);
-                            currentUser = new User(id, firstName, lastName, birthDate, email, password1, true, new HashSet<>());
+                            currentUser = new User(id, firstName, lastName, birthDate, email, password1, true, new ArrayList<>());
                             System.out.println(password1);
                             }
 
@@ -169,7 +169,7 @@ public class Menu extends MenuStatements {
         String _ConfirmPassword = new Scanner(System.in).nextLine();
         if (_Password.equals(_ConfirmPassword)) {
             try {
-                currentUser = new User(0,_FirstName, _LastName, _Birth_date, _Email, _Password, false, new HashSet<>());
+                currentUser = new User(0,_FirstName, _LastName, _Birth_date, _Email, _Password, false, new ArrayList<>());
 
             } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();
@@ -229,33 +229,199 @@ public class Menu extends MenuStatements {
         return;
     }
 
-    private void viewTransactions() {
+    private void viewTransactions() throws SQLException {
+
+        System.out.println("TRANSACTIONS");
+        updateCardList();
+        for(Card c : currentUser.getCards()){
+            System.out.println("Card Name: " + c.getCardName());
+            System.out.println("Number: " + c.getNumber());
+            System.out.println("Balance: " + c.getBalance());
+            System.out.println("\n");
+            System.out.println("Transactions: ");
+            getTransactionsInStatement.setInt(1, c.getIdCard());
+            ResultSet rs = getTransactionsInStatement.executeQuery();
+            while(rs.next()){
+                Integer idTransaction = rs.getInt(1);
+                Integer idCardOutgoing = rs.getInt(2);
+                Integer idCardIncoming = rs.getInt(3);
+                Integer amount = rs.getInt(4);
+                Date date = rs.getDate(5);
+                System.out.println("Transaction ID: " + idTransaction);
+                System.out.println("Amount: +" + amount);
+                System.out.println("Date: " + date);
+                System.out.println("\n");
+            }
+            getTransactionsOutStatement.setInt(1, c.getIdCard());
+            ResultSet rs2 = getTransactionsOutStatement.executeQuery();
+            while(rs2.next()){
+                Integer idTransaction = rs2.getInt(1);
+                Integer idCardOutgoing = rs2.getInt(2);
+                Integer idCardIncoming = rs2.getInt(3);
+                Integer amount = rs2.getInt(4);
+                Date date = rs2.getDate(5);
+                System.out.println("Transaction ID: " + idTransaction);
+                System.out.println("Amount: -" + amount);
+                System.out.println("Date: " + date);
+                System.out.println("\n");
+            }
+        }
+
+
     }
 
-    private void transferMoney() {
-//        while(true){
-//            System.out.println("TRANSFER MONEY");
-//            System.out.println("1. Transfer to another card");
-//            System.out.println("2. Transfer to another account");
-//            System.out.println("3. Back");
-//            Scanner sc = new Scanner(System.in);
-//            String option = sc.nextLine();
-//            switch(option){
-//                case "1":
-//                    transferToCard();
-//                    break;
-//                case "2":
-//                    transferToAccount();
-//                    break;
-//                case "3":
-//                    mainPage();
-//                    return;
-//                default:
-//                    System.out.println("Wrong input. Please try again");
-//                    break;
-//            }
-//        }
+    private void transferMoney() throws SQLException {
+        while(true){
+            System.out.println("TRANSFER MONEY");
+            System.out.println("1. Choose from the AdressBook");
+            System.out.println("2. Add a new contact");
+            System.out.println("3. Back");
+            Scanner sc = new Scanner(System.in);
+            String option = sc.nextLine();
+            switch(option){
+                case "1":
+                    chooseFromAdressBook();
+                    break;
+                case "2":
+                    addNewContact();
+                    break;
+                case "3":
+                    mainPage();
+                    return;
+                default:
+                    System.out.println("Wrong input. Please try again");
+                    break;
+            }
+
+
+        }
     }
+
+    private void addNewContact() {
+        System.out.println("ADD NEW CONTACT");
+        System.out.println("Name: ");
+        String _Name = new Scanner(System.in).nextLine();
+        System.out.println("IBAN: ");
+        String _IBAN = new Scanner(System.in).nextLine();
+        AdressBook a = new AdressBook(currentUser, _Name, _IBAN);
+        System.out.println("Contact added succesfully");
+    }
+
+    private Integer selectCard(){
+
+        while(true){
+            System.out.println("SELECT CARD");
+
+            Scanner sc = new Scanner(System.in);
+            Integer count = 0;
+            for(Card c : currentUser.getCards()) {
+                System.out.println(++count + ". ");
+                System.out.println("Card Name: " + c.getCardName());
+                System.out.println("Number: " + c.getNumber());
+                System.out.println("Balance: " + c.getBalance());
+                System.out.println("\n");
+            }
+            Integer option = Integer.parseInt(sc.nextLine());
+
+            if(option > count || option < 1){
+                System.out.println("Wrong input. Please try again");
+                continue;
+            }
+            else{
+                return option;
+            }
+
+        }
+    }
+
+    private void chooseFromAdressBook() throws SQLException {
+
+        updateCardList();
+        Integer cardID = selectCard();
+
+        System.out.println("CHOOSE FROM ADRESS BOOK");
+
+        getAdressBooksStatement.setInt(1, currentUser.getIdUser());
+        ResultSet rsAdressBooks = getAdressBooksStatement.executeQuery();
+        Set <AdressBook> adressBookstemp = new HashSet<>();
+        while(rsAdressBooks.next()){
+
+            Integer id = rsAdressBooks.getInt(1);
+            Integer idUser = rsAdressBooks.getInt(2);
+            String Name = rsAdressBooks.getString(3);
+            String IBAN = rsAdressBooks.getString(4);
+
+            AdressBook a = new AdressBook(id, idUser, Name, IBAN);
+
+            adressBookstemp.add(a);
+        }
+
+        while(true){
+            Integer i = 1;
+            for(AdressBook a : adressBookstemp){
+                System.out.println(i + ". " + a.getName());
+                i++;
+            }
+            Integer option = new Scanner(System.in).nextInt();
+            if(option > i || option < 1){
+                System.out.println("Wrong input. Please try again");
+                continue;
+            }
+            else{
+                AdressBook a = (AdressBook) adressBookstemp.toArray()[option-1];
+
+                System.out.println("Amount: ");
+                Integer amount = new Scanner(System.in).nextInt();
+                System.out.println("Are you sure you want to transfer " + amount + " to " + a.getName() + "?");
+                System.out.println("Y/N: ");
+                String confirm = new Scanner(System.in).nextLine();
+                if(confirm.equals("Y") || confirm.equals("y")){
+                    System.out.println("Transfering " + amount + " to " + a.getName());
+
+                    //Remove the money
+                    //"UPDATE cards SET balance = ? WHERE idcard = ?"
+                    Integer idCardOutgoing = currentUser.getCards().get(cardID-1).getIdCard();
+                    updateCardBalanceStatement.setInt(1,(currentUser.getCards().get(cardID-1).getBalance() - amount));
+                    updateCardBalanceStatement.setInt(2, idCardOutgoing);
+                    updateCardBalanceStatement.execute();
+                    //Add the money
+                    //UPDATE cards SET balance = ? WHERE iban = ?
+
+                    getIdWithIbanStatement.setString(1, a.getIBAN());
+                    ResultSet rs = getIdWithIbanStatement.executeQuery();
+                    Integer idCardIncoming = 0;
+                    if(rs.next()){
+                        idCardIncoming = rs.getInt(1);
+                    }
+
+                    getBalancewithIbanStatement.setString(1, a.getIBAN());
+                    ResultSet rs2 = getBalancewithIbanStatement.executeQuery();
+                    Integer balance = 0;
+                    if(rs2.next()){
+                        balance = rs2.getInt(1);
+                    }
+
+                    updateCardBalancewithIbanStatement.setInt(1, balance + amount);
+                    updateCardBalancewithIbanStatement.setString(2, a.getIBAN());
+                    updateCardBalancewithIbanStatement.execute();
+
+
+                    new Transaction(idCardOutgoing, idCardIncoming, amount);
+
+
+
+                    return;
+                }
+                else{
+                    System.out.println("Transfer cancelled");
+                    return;
+                }
+            }
+        }
+
+
+    }
+
 
     private void viewAccount() throws SQLException {
 
@@ -288,12 +454,10 @@ public class Menu extends MenuStatements {
             }
         }
     }
-
-    private void seeCards() throws SQLException {
-
+    private void updateCardList() throws SQLException {
         getCardsStatement.setInt(1, currentUser.getIdUser());
         ResultSet rsCards = getCardsStatement.executeQuery();
-        Set <Card> cardstemp = new HashSet<>();
+        List <Card> cardstemp = new ArrayList<>();
         while(rsCards.next()){
 
             Integer id = rsCards.getInt(1);
@@ -312,6 +476,10 @@ public class Menu extends MenuStatements {
             cardstemp.add(c);
         }
         currentUser.UpdateCards(cardstemp);
+    }
+    private void seeCards() throws SQLException {
+
+        updateCardList();
 
         System.out.println("CARDS");
         for(Card c : currentUser.getCards()) {

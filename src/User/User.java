@@ -19,10 +19,10 @@ public class  User extends UserStatements{
     private Date BirthDate;
     private String Email;
     private String Password;
-    private Set<Card> cards;
+    private List<Card> cards;
 
     {
-        cards = new HashSet<>();
+        cards = new ArrayList<>();
     }
     static {
         try {
@@ -42,7 +42,7 @@ public class  User extends UserStatements{
             e.printStackTrace(); // Consider logging the exception
         }
     }
-    public User(Integer _id, String _FirstName, String _LastName, Date _BirthDate, String _Email, String _Password, Boolean alreadyInDatabase, Set<Card> _cards) throws NoSuchAlgorithmException {
+    public User(Integer _id, String _FirstName, String _LastName, Date _BirthDate, String _Email, String _Password, Boolean alreadyInDatabase, List<Card> _cards) throws NoSuchAlgorithmException {
         if(alreadyInDatabase){
             idUser = _id;
             Password = _Password;
@@ -62,11 +62,11 @@ public class  User extends UserStatements{
             AddToDatabase();
     }
 
-    public void UpdateCards(Set<Card> _cards){
+    public void UpdateCards(List<Card> _cards){
         cards = _cards;
     }
 
-    public Set<Card> getCards(){
+    public List<Card> getCards(){
         return cards;
     }
 

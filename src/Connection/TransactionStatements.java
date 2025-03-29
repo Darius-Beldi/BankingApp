@@ -6,9 +6,17 @@ import java.sql.PreparedStatement;
 
 public class TransactionStatements extends ConnectionString {
 
+
+    //generatedIdTransaction++;
+    //        idTransaction = generatedIdTransaction;
+    //        idCardOutgoing = _idCardOutgoing;
+    //        idCardIncoming = _idCardIncoming;
+    //        amount = _amount;
+    //        date = new Date();
+
     protected static String insertTransaction = "insert into transactions " +
-            "(idtransaction, idcard, amount, date)" +
-            " values (?, ?, ?, ?)";
+            "(idtransaction, idcardoutgoing, idcardincoming, amount, date)" +
+            " values (?, ?, ?, ?, ?)";
 
     protected static String selectTransaction = "select * from transactions where idcard = ?";
 

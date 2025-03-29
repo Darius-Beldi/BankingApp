@@ -20,11 +20,12 @@ create table Cards (
     Balance int,
     FOREIGN KEY (idUser) REFERENCES Users(idUser)
 );
-
 create table Transactions(
     idTransaction int primary key,
-    idCard int,
-    date date,
+    idCardOutgoing int,
+    idCardIncoming int,
     amount int,
-    FOREIGN KEY (idCard) REFERENCES cards(idCard)
+    date date,
+    FOREIGN KEY (idCardOutgoing) REFERENCES cards(idCard)
+    FOREIGN KEY (idCardIncoming) REFERENCES cards(idCard)
 );
