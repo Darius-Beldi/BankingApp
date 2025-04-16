@@ -1,4 +1,4 @@
-package User;
+package Models;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -7,8 +7,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
-import Cards.Card;
 import Connection.*;
+import Services.UserService;
 
 public class  User extends UserStatements{
 
@@ -20,11 +20,13 @@ public class  User extends UserStatements{
     private String Email;
     private String Password;
     private List<Card> cards;
+    private static UserService userService;
 
     {
         cards = new ArrayList<>();
     }
     static {
+        userService =  new UserService();
         try {
             PreparedStatement selectStatement = c.prepareStatement("SELECT idUser FROM Users ORDER BY idUser DESC LIMIT 1");
             ResultSet rs = selectStatement.executeQuery();
@@ -42,7 +44,7 @@ public class  User extends UserStatements{
             e.printStackTrace(); // Consider logging the exception
         }
     }
-    public User(Integer _id, String _FirstName, String _LastName, Date _BirthDate, String _Email, String _Password, Boolean alreadyInDatabase, List<Card> _cards) throws NoSuchAlgorithmException {
+    public User(Integer _id, String _FirstName, String _LastName, Date _BirthDate, String _Email, String _Password, Boolean alreadyInDatabase, List<Card> _cards) throws NoSuchAlgorithmException, SQLException {
         if(alreadyInDatabase){
             idUser = _id;
             Password = _Password;
@@ -59,7 +61,7 @@ public class  User extends UserStatements{
         Email = _Email;
 
        if(!alreadyInDatabase)
-            AddToDatabase();
+            userService.addToDatabase(this);
     }
 
     public void UpdateCards(List<Card> _cards){
@@ -71,22 +73,6 @@ public class  User extends UserStatements{
     }
 
 
-    private void AddToDatabase(){
-        try {
-            insertUserStatement.setInt(1, idUser);
-            insertUserStatement.setString(2, FirstName);
-            insertUserStatement.setString(3, LastName);
-            java.sql.Date sqlDate = new java.sql.Date(BirthDate.getTime());
-
-
-            insertUserStatement.setDate(4, sqlDate);
-            insertUserStatement.setString(5, Email);
-            insertUserStatement.setString(6, Password);
-            insertUserStatement.execute();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public void ShowDetails(){
         System.out.println("First Name: " + FirstName);
@@ -142,6 +128,7 @@ public class  User extends UserStatements{
     public void setPassword(String crypt) {
         Password = crypt;
     }
+
 
     public void AddCard(Card c) {
         cards.add(c);

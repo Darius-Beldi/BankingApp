@@ -6,7 +6,7 @@ public class UserStatements extends ConnectionString{
     protected static String insertUser = "insert into users " +
             "(iduser, firstname, lastname, birthdate, email, password)" +
             " values (?, ?, ?, ?, ?, ?)";
-    protected static PreparedStatement insertUserStatement;
+    public static PreparedStatement insertUserStatement;
     protected static PreparedStatement selectUserStatement;
 
     {

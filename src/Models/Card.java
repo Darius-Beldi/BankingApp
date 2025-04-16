@@ -1,12 +1,14 @@
-package Cards;
+package Models;
 import Connection.CardStatements;
 
+import java.security.NoSuchAlgorithmException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Random;
+import Services.CardServices;
+import Services.UserService;
 
-import User.User;
 public class Card extends CardStatements {
 
     private static int generatedIdCard;
@@ -21,6 +23,8 @@ public class Card extends CardStatements {
     private Integer CVV;
     private Integer Balance;
     private Random rand = new Random();
+    private CardServices cardService= new CardServices();
+    private UserService userService= new UserService();
 
     static {
         try {
@@ -37,24 +41,18 @@ public class Card extends CardStatements {
             selectStatement.close();
         } catch (SQLException e) {
             generatedIdCard = 0;
-            e.printStackTrace(); // Consider logging the exception
+            e.printStackTrace();
         }
     }
 
     /// New Card Generator
-    public Card(Integer _idUser, String _CardName) throws SQLException {
+    public Card(Integer _idUser, String _CardName) throws SQLException, NoSuchAlgorithmException {
         generatedIdCard += 1;
         CardName = _CardName;
 
-        getUserFirstNameStatement.setInt(1, _idUser);
-        ResultSet rs = getUserFirstNameStatement.executeQuery();
-        rs.next();
-        Name = rs.getString(1);
 
-        getUserLastNameStatement.setInt(1, _idUser);
-        ResultSet rs2 = getUserLastNameStatement.executeQuery();
-        rs2.next();
-        Name += rs2.getString(1);
+        Name = userService.userFirstName(_idUser);
+        Name += userService.userLastName(_idUser);
 
         IBAN = generateIBAN();
         Number = generateNumber();
@@ -64,7 +62,7 @@ public class Card extends CardStatements {
         Balance = 200;
         idCard = generatedIdCard;
         idUser = _idUser;
-        insertIntoDatabase();
+        cardService.insertIntoDatabase(this);
     }
 
     public Card(Integer id, Integer idUser, String name, String cardName, String iban, String number, Integer month, Integer year, Integer cvv, Integer balance) {
@@ -82,25 +80,6 @@ public class Card extends CardStatements {
 
     }
 
-
-    private void insertIntoDatabase() {
-        try{
-            insertCardStatement.setInt(1, idCard);
-            insertCardStatement.setInt(2, idUser);
-            insertCardStatement.setString(3, Name);
-            insertCardStatement.setString(4, IBAN);
-            insertCardStatement.setString(5, Number);
-            insertCardStatement.setInt(6, Month);
-            insertCardStatement.setInt(7, Year);
-            insertCardStatement.setInt(8, CVV);
-            insertCardStatement.setInt(9, Balance);
-            insertCardStatement.setString(10, CardName);
-            insertCardStatement.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
     private String generateIBAN() throws SQLException {
 
         while(true){
@@ -109,10 +88,7 @@ public class Card extends CardStatements {
                 int n = rand.nextInt(10);
                 IBAN = IBAN + n;
             }
-            checkIBANStatement.setString(1, IBAN);
-            ResultSet rs = checkIBANStatement.executeQuery();
-
-            if (!rs.next()) {
+            if (!cardService.isIBANUsed(IBAN)) {
                 return IBAN;
             }
         }
@@ -124,9 +100,7 @@ public class Card extends CardStatements {
                 int n = rand.nextInt(10);
                 Number = Number + n;
             }
-            checkCardNumbersStatement.setString(1, Number);
-            ResultSet rs = checkCardNumbersStatement.executeQuery();
-            if (!rs.next()) {
+            if (!cardService.isNumberUsed(Number)) {
                 return Number;
             }
         }

@@ -1,5 +1,7 @@
-import Cards.Card;
+package Models;
+
 import Connection.MenuStatements;
+import Services.*;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -7,21 +9,44 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
-import User.User;
 public class Menu extends MenuStatements {
 
     private static Integer idCurrentUser;
     private static User currentUser;
+    private AuthenticationService authService;
+    private UserService userService;
+    private CardServices cardService;
+    private TransactionService transactionService;
+    private AdressBooksService addressBookService;
 
     static {
         idCurrentUser = -1;
     }
 
+    public Menu() {
+        this.authService = new AuthenticationService();
+        this.userService = new UserService();
+        this.cardService = new CardServices();
+        this.transactionService = new TransactionService();
+        this.addressBookService = new AdressBooksService();
+    }
+
+
+
+    //Functions that use the auth service
     public void menu() throws SQLException {
         while(true){
             if (chooseLorR()) //true= login , false = register
                 try {
-                    if (Login()) {
+                    System.out.println("LOGIN");
+                    System.out.println("Email: ");
+                    String email = new Scanner(System.in).nextLine();
+                    System.out.println("Password: ");
+                    String password = new Scanner(System.in).nextLine();
+
+                    currentUser = authService.login(email, password);
+
+                    if (currentUser != null) {
                         System.out.println("Login succesful");
                         mainPage();
                         return;
@@ -30,6 +55,8 @@ public class Menu extends MenuStatements {
                     }
                 } catch (SQLException | NoSuchAlgorithmException e) {
                     e.printStackTrace();
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException(e);
                 }
             else {
                 Register();
@@ -47,20 +74,13 @@ public class Menu extends MenuStatements {
         Scanner sc = new Scanner(System.in);
         while(ok==true){
             String HasAnAccount = sc.nextLine();
-            switch(HasAnAccount){
+            switch(HasAnAccount.toUpperCase()){
 
                 case "Y":
                     return true;
 
                 case "N":
                     return false;
-
-                case "y":
-                    return true;
-
-                case "n":
-                    return false;
-
 
                 default:
                     System.out.println("Wrong input. Please try again");
@@ -70,57 +90,8 @@ public class Menu extends MenuStatements {
         }
         return true;
     }
-    /// true = login was succesful
-    public static boolean Login() throws SQLException, NoSuchAlgorithmException {
-        System.out.println("LOGIN");
-        System.out.println("Email: ");
-        String _email = new Scanner(System.in).nextLine();
 
-        checkForExistingEmailStatement.setString(1, _email);
-        ResultSet rs = checkForExistingEmailStatement.executeQuery();
-        String foundEmail = "";
-        if(rs.next()){
-            foundEmail = rs.getString(1);
-        }
-
-        if(foundEmail.equals(_email)){
-            boolean ok = false;
-            for(int i = 3; i>=0; i--){
-                System.out.println("Password: ");
-                String _password = new Scanner(System.in).nextLine();
-                getPasswordStatement.setString(1, _email);
-                ResultSet password = getPasswordStatement.executeQuery();
-                if(password.next()){
-                    if(password.getString(1).equals(Crypt(_password))){
-
-                        getUserStatement.setString(1, foundEmail);
-                        ResultSet rsUser = getUserStatement.executeQuery();
-                        if(rsUser.next()){
-                            int id = rsUser.getInt(1);
-                            String firstName = rsUser.getString(2);
-                            String lastName = rsUser.getString(3);
-                            Date birthDate = rsUser.getDate(4);
-                            String email = rsUser.getString(5);
-                            String password1 = rsUser.getString(6);
-                            currentUser = new User(id, firstName, lastName, birthDate, email, password1, true, new ArrayList<>());
-                            System.out.println(password1);
-                            }
-
-
-
-                        return true;
-                    }
-                    else{
-                        System.out.println("Wrong password. Attempts left: " + i);
-                    }
-                }
-            }
-            return ok;
-        }
-       return false;
-    }
-
-    public static void Register() throws SQLException {
+    public void Register() throws SQLException {
         System.out.println("REGISTER");
         System.out.println("First Name: ");
         String _FirstName = new Scanner(System.in).nextLine();
@@ -128,6 +99,8 @@ public class Menu extends MenuStatements {
         String _LastName = new Scanner(System.in).nextLine();
 
 
+
+        //Birthday Handling
         int[] _Birth_datearray;
         Date _Birth_date;
         while(true){
@@ -148,15 +121,13 @@ public class Menu extends MenuStatements {
 
         }
 
-
+        //Email Handling
         String _Email = "";
         while (true){
             System.out.println("Email: ");
             _Email = new Scanner(System.in).nextLine();
 
-            checkForExistingEmailStatement.setString(1, _Email);
-            ResultSet rs = checkForExistingEmailStatement.executeQuery();
-            if(rs.next()){
+            if(authService.isEmailAvailable(_Email) ){
                 System.out.println("Email already in use");
             }
             else break;
@@ -169,15 +140,19 @@ public class Menu extends MenuStatements {
         String _ConfirmPassword = new Scanner(System.in).nextLine();
         if (_Password.equals(_ConfirmPassword)) {
             try {
-                currentUser = new User(0,_FirstName, _LastName, _Birth_date, _Email, _Password, false, new ArrayList<>());
-
+                currentUser = authService.register(_FirstName, _LastName, _Birth_date, _Email, _Password);
             } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    public void mainPage() throws SQLException {
+
+
+
+
+
+    public void mainPage() throws SQLException, NoSuchAlgorithmException, ClassNotFoundException {
         while(true){
             System.out.println("MAIN PAGE");
             System.out.println("1. View Account");
@@ -218,7 +193,7 @@ public class Menu extends MenuStatements {
 
     }
 
-    private void createCard() throws SQLException {
+    private void createCard() throws SQLException, NoSuchAlgorithmException {
 
         System.out.println("CREATE CARD");
         System.out.println("Card Name: ");
@@ -232,45 +207,23 @@ public class Menu extends MenuStatements {
     private void viewTransactions() throws SQLException {
 
         System.out.println("TRANSACTIONS");
-        updateCardList();
+        cardService.updateCardList(currentUser);
         for(Card c : currentUser.getCards()){
             System.out.println("Card Name: " + c.getCardName());
             System.out.println("Number: " + c.getNumber());
             System.out.println("Balance: " + c.getBalance());
             System.out.println("\n");
             System.out.println("Transactions: ");
-            getTransactionsInStatement.setInt(1, c.getIdCard());
-            ResultSet rs = getTransactionsInStatement.executeQuery();
-            while(rs.next()){
-                Integer idTransaction = rs.getInt(1);
-                Integer idCardOutgoing = rs.getInt(2);
-                Integer idCardIncoming = rs.getInt(3);
-                Integer amount = rs.getInt(4);
-                Date date = rs.getDate(5);
-                System.out.println("Transaction ID: " + idTransaction);
-                System.out.println("Amount: +" + amount);
-                System.out.println("Date: " + date);
-                System.out.println("\n");
-            }
-            getTransactionsOutStatement.setInt(1, c.getIdCard());
-            ResultSet rs2 = getTransactionsOutStatement.executeQuery();
-            while(rs2.next()){
-                Integer idTransaction = rs2.getInt(1);
-                Integer idCardOutgoing = rs2.getInt(2);
-                Integer idCardIncoming = rs2.getInt(3);
-                Integer amount = rs2.getInt(4);
-                Date date = rs2.getDate(5);
-                System.out.println("Transaction ID: " + idTransaction);
-                System.out.println("Amount: -" + amount);
-                System.out.println("Date: " + date);
-                System.out.println("\n");
-            }
+            
+            transactionService.printTransactionsIn(c);
+            transactionService.printTransactionsOut(c);
+            
         }
 
 
     }
 
-    private void transferMoney() throws SQLException {
+    private void transferMoney() throws SQLException, NoSuchAlgorithmException, ClassNotFoundException {
         while(true){
             System.out.println("TRANSFER MONEY");
             System.out.println("1. Choose from the AdressBook");
@@ -297,7 +250,7 @@ public class Menu extends MenuStatements {
         }
     }
 
-    private void addNewContact() {
+    private void addNewContact() throws SQLException {
         System.out.println("ADD NEW CONTACT");
         System.out.println("Name: ");
         String _Name = new Scanner(System.in).nextLine();
@@ -334,27 +287,16 @@ public class Menu extends MenuStatements {
         }
     }
 
-    private void chooseFromAdressBook() throws SQLException {
+    private void chooseFromAdressBook() throws SQLException, ClassNotFoundException {
 
-        updateCardList();
+        cardService.updateCardList(currentUser);
         Integer cardID = selectCard();
 
         System.out.println("CHOOSE FROM ADRESS BOOK");
 
-        getAdressBooksStatement.setInt(1, currentUser.getIdUser());
-        ResultSet rsAdressBooks = getAdressBooksStatement.executeQuery();
         Set <AdressBook> adressBookstemp = new HashSet<>();
-        while(rsAdressBooks.next()){
+        adressBookstemp = AdressBooksService.readAdressBooks(currentUser);
 
-            Integer id = rsAdressBooks.getInt(1);
-            Integer idUser = rsAdressBooks.getInt(2);
-            String Name = rsAdressBooks.getString(3);
-            String IBAN = rsAdressBooks.getString(4);
-
-            AdressBook a = new AdressBook(id, idUser, Name, IBAN);
-
-            adressBookstemp.add(a);
-        }
 
         while(true){
             Integer i = 1;
@@ -376,39 +318,8 @@ public class Menu extends MenuStatements {
                 System.out.println("Y/N: ");
                 String confirm = new Scanner(System.in).nextLine();
                 if(confirm.equals("Y") || confirm.equals("y")){
-                    System.out.println("Transfering " + amount + " to " + a.getName());
 
-                    //Remove the money
-                    //"UPDATE cards SET balance = ? WHERE idcard = ?"
-                    Integer idCardOutgoing = currentUser.getCards().get(cardID-1).getIdCard();
-                    updateCardBalanceStatement.setInt(1,(currentUser.getCards().get(cardID-1).getBalance() - amount));
-                    updateCardBalanceStatement.setInt(2, idCardOutgoing);
-                    updateCardBalanceStatement.execute();
-                    //Add the money
-                    //UPDATE cards SET balance = ? WHERE iban = ?
-
-                    getIdWithIbanStatement.setString(1, a.getIBAN());
-                    ResultSet rs = getIdWithIbanStatement.executeQuery();
-                    Integer idCardIncoming = 0;
-                    if(rs.next()){
-                        idCardIncoming = rs.getInt(1);
-                    }
-
-                    getBalancewithIbanStatement.setString(1, a.getIBAN());
-                    ResultSet rs2 = getBalancewithIbanStatement.executeQuery();
-                    Integer balance = 0;
-                    if(rs2.next()){
-                        balance = rs2.getInt(1);
-                    }
-
-                    updateCardBalancewithIbanStatement.setInt(1, balance + amount);
-                    updateCardBalancewithIbanStatement.setString(2, a.getIBAN());
-                    updateCardBalancewithIbanStatement.execute();
-
-
-                    new Transaction(idCardOutgoing, idCardIncoming, amount);
-
-
+                    cardService.transferMoney(currentUser, cardID, a, amount);
 
                     return;
                 }
@@ -423,7 +334,7 @@ public class Menu extends MenuStatements {
     }
 
 
-    private void viewAccount() throws SQLException {
+    private void viewAccount() throws SQLException, NoSuchAlgorithmException, ClassNotFoundException {
 
         while(true){
 
@@ -454,32 +365,15 @@ public class Menu extends MenuStatements {
             }
         }
     }
-    private void updateCardList() throws SQLException {
-        getCardsStatement.setInt(1, currentUser.getIdUser());
-        ResultSet rsCards = getCardsStatement.executeQuery();
-        List <Card> cardstemp = new ArrayList<>();
-        while(rsCards.next()){
 
-            Integer id = rsCards.getInt(1);
-            Integer idUser = rsCards.getInt(2);
-            String Name = rsCards.getString(3);
-            String cardName = rsCards.getString(4);
-            String IBAN = rsCards.getString(5);
-            String Number = rsCards.getString(6);
-            Integer Month = rsCards.getInt(7);
-            Integer Year = rsCards.getInt(8);
-            Integer CVV = rsCards.getInt(9);
-            Integer Balance = rsCards.getInt(10);
 
-            Card c = new Card(id, idUser, Name, cardName, IBAN, Number, Month, Year, CVV, Balance);
 
-            cardstemp.add(c);
-        }
-        currentUser.UpdateCards(cardstemp);
-    }
+
+
+
     private void seeCards() throws SQLException {
 
-        updateCardList();
+        cardService.updateCardList(currentUser);
 
         System.out.println("CARDS");
         for(Card c : currentUser.getCards()) {
@@ -494,7 +388,8 @@ public class Menu extends MenuStatements {
         }
     }
 
-    private void changePassword() {
+    //--updated for services
+    private void changePassword() throws SQLException, NoSuchAlgorithmException {
         System.out.println("CHANGE PASSWORD");
         System.out.println("Old Password: ");
         String oldPassword = new Scanner(System.in).nextLine();
@@ -502,32 +397,17 @@ public class Menu extends MenuStatements {
         String newPassword = new Scanner(System.in).nextLine();
         System.out.println("Confirm New Password: ");
         String confirmNewPassword = new Scanner(System.in).nextLine();
-        if(newPassword.equals(confirmNewPassword)){
-            try {
 
-
-                    if(currentUser.getPassword().equals(Crypt(oldPassword))){
-                        updatePasswordStatement.setString(1, Crypt(newPassword));
-                        updatePasswordStatement.setInt(2, currentUser.getIdUser());
-                        updatePasswordStatement.execute();
-                        currentUser.setPassword(Crypt(newPassword));
-                        System.out.println("Password changed succesfully");
-                        return;
-                    }
-                    else{
-                        System.out.println("Wrong password");
-                        return;
-                    }
-
-
-
-            } catch (SQLException | NoSuchAlgorithmException e) {
-                e.printStackTrace();
-            }
+        if(userService.changePassword(currentUser, oldPassword, newPassword)){
+            System.out.println("Password changed successfully");
         }
+        else{
+            System.out.println("Password change failed");
+        }
+
     }
 
-    private void viewDetails() throws SQLException {
+    private void viewDetails() throws SQLException, NoSuchAlgorithmException, ClassNotFoundException {
         System.out.println("VIEW DETAILS");
 
 
@@ -554,21 +434,5 @@ public class Menu extends MenuStatements {
     }
 
 
-    public static String Crypt(String input) throws NoSuchAlgorithmException {
-        MessageDigest md = MessageDigest.getInstance("MD5");
-        md.update(input.getBytes());
-        byte[] digest = md.digest();
 
-        // Convert byte array to hexadecimal string
-        StringBuilder hexString = new StringBuilder();
-        for (byte b : digest) {
-            String hex = Integer.toHexString(0xff & b);
-            if (hex.length() == 1) {
-                hexString.append('0');
-            }
-            hexString.append(hex);
-        }
-
-        return hexString.toString();
-    }
 }

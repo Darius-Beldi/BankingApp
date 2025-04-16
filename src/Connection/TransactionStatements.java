@@ -20,7 +20,7 @@ public class TransactionStatements extends ConnectionString {
 
     protected static String selectTransaction = "select * from transactions where idcard = ?";
 
-    protected static PreparedStatement insertTransactionStatement;
+    public static PreparedStatement insertTransactionStatement;
     protected static PreparedStatement selectTransactionStatement;
 
     static {

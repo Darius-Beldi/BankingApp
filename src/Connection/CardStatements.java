@@ -5,23 +5,23 @@ import java.sql.PreparedStatement;
 
 public class CardStatements extends ConnectionString {
 
-    protected static String insertCard = "insert into cards " +
+    public static String insertCard = "insert into cards " +
             "(idcard, iduser, name, iban, cardnumber, month, year, cvv, balance, cardname)" +
             " values (?, ?, ?, ?, ?, ?, ?,?, ?, ?)";
 
-    protected static String selectCard = "select * from cards where iduser = ?";
+    public static String selectCard = "select * from cards where iduser = ?";
 
-    protected static String checkIBANs = "SELECT 1 FROM cards WHERE IBAN = ?";
-    protected static String checkCardNumbers = "SELECT 1 FROM cards WHERE cardnumber = ?";
-    protected static String getUserFirstName = "SELECT Firstname FROM users WHERE iduser = ?";
-    protected static String getUserLastName = "SELECT lastname FROM users WHERE iduser = ?";
+    public static String checkIBANs = "SELECT 1 FROM cards WHERE IBAN = ?";
+    public static String checkCardNumbers = "SELECT 1 FROM cards WHERE cardnumber = ?";
+    public static String getUserFirstName = "SELECT Firstname FROM users WHERE iduser = ?";
+    public static String getUserLastName = "SELECT lastname FROM users WHERE iduser = ?";
 
-    protected static PreparedStatement insertCardStatement;
-    protected static PreparedStatement selectCardStatement;
-    protected static PreparedStatement checkIBANStatement;
-    protected static PreparedStatement checkCardNumbersStatement;
-    protected static PreparedStatement getUserFirstNameStatement;
-    protected static PreparedStatement getUserLastNameStatement;
+    public static PreparedStatement insertCardStatement;
+    public static PreparedStatement selectCardStatement;
+    public static PreparedStatement checkIBANStatement;
+    public static PreparedStatement checkCardNumbersStatement;
+    public static PreparedStatement getUserFirstNameStatement;
+    public static PreparedStatement getUserLastNameStatement;
 
 
     static {

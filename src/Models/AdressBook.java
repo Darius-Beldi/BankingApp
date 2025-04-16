@@ -1,5 +1,8 @@
+package Models;
+
 import Connection.AdressBookStatements;
-import User.User;
+import Services.AdressBooksService;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -11,7 +14,7 @@ public class AdressBook extends AdressBookStatements {
     private Integer idUser;
     private String name;
     private String IBAN;
-
+    private AdressBooksService adressBookService = new AdressBooksService();
 
     static {
         try {
@@ -32,7 +35,7 @@ public class AdressBook extends AdressBookStatements {
         }
     }
 
-    public AdressBook(User _user, String _name, String _IBAN) {
+    public AdressBook(User _user, String _name, String _IBAN) throws SQLException {
         generatedIdAdressBook++;
         idAdressBook = generatedIdAdressBook;
 
@@ -40,7 +43,7 @@ public class AdressBook extends AdressBookStatements {
         name = _name;
         IBAN = _IBAN;
 
-        insertIntoDatabase();
+        adressBookService.insertIntoDatabase(this);
     }
 
     public AdressBook(Integer id, Integer idUser, String name, String iban) {
@@ -50,22 +53,17 @@ public class AdressBook extends AdressBookStatements {
         this.IBAN = iban;
     }
 
-    private void insertIntoDatabase() {
-        try {
-            insertAdressBookStatement.setInt(1, idAdressBook);
-            insertAdressBookStatement.setInt(2, idUser);
-            insertAdressBookStatement.setString(3, name);
-            insertAdressBookStatement.setString(4, IBAN);
-            insertAdressBookStatement.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
 
     public String getName() {
         return name;
     }
     public String getIBAN() {
         return IBAN;
+    }
+    public  Integer getIdAdressBook() {
+        return idAdressBook;
+    }
+    public Integer getIdUser() {
+        return idUser;
     }
 }

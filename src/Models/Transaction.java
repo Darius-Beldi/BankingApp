@@ -1,5 +1,7 @@
-import Connection.ConnectionString;
+package Models;
+
 import Connection.TransactionStatements;
+import Services.TransactionService;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -13,6 +15,7 @@ public class Transaction extends TransactionStatements {
     private Integer idCardIncoming;
     private Date date;
     private Integer amount;
+    private TransactionService transactionService = new TransactionService();
 
     static {
         try {
@@ -33,7 +36,7 @@ public class Transaction extends TransactionStatements {
         }
     }
 
-    public Transaction(int _idCardOutgoing, int _idCardIncoming, Integer _amount) throws SQLException {
+    public Transaction(int _idCardOutgoing, int _idCardIncoming, Integer _amount) throws SQLException, ClassNotFoundException {
 
         generatedIdTransaction++;
         idTransaction = generatedIdTransaction;
@@ -41,7 +44,8 @@ public class Transaction extends TransactionStatements {
         idCardIncoming = _idCardIncoming;
         amount = _amount;
         date = new Date();
-        insertIntoDatabase();
+
+        transactionService.insertIntoDatabase(this);
 
     }
 
@@ -54,14 +58,30 @@ public class Transaction extends TransactionStatements {
 
     }
 
-    private void insertIntoDatabase() throws SQLException {
-        insertTransactionStatement.setInt(1, idTransaction);
-        insertTransactionStatement.setInt(2, idCardOutgoing);
-        insertTransactionStatement.setInt(3, idCardIncoming);
-        insertTransactionStatement.setDouble(4, amount);
-        insertTransactionStatement.setDate(5, new java.sql.Date(date.getTime()));
-        insertTransactionStatement.execute();
-        return;
+    public static Integer getGeneratedIdTransaction() {
+        return generatedIdTransaction;
     }
+
+    public Integer getIdTransaction() {
+        return idTransaction;
+    }
+
+    public Integer getIdCardOutgoing() {
+        return idCardOutgoing;
+    }
+
+    public Integer getIdCardIncoming() {
+        return idCardIncoming;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public Integer getAmount() {
+        return amount;
+    }
+
+
 
 }
