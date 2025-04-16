@@ -12,7 +12,10 @@ public class MenuStatements extends ConnectionString {
     public static String getUser = "SELECT * FROM users WHERE email = ?";
     public static String getPasswordbyID = "SELECT password FROM users WHERE iduser = ?";
     public static String updatePassword = "UPDATE users SET password = ? WHERE iduser = ?";
-    public static String getCards = "SELECT * FROM cards WHERE iduser = ?";
+
+    public static String getCards = "SELECT " +
+            "idCard, idUser, Name, CardName, IBAN, cardNumber, Month, Year, CVV, Balance" +
+            " FROM cards WHERE iduser = ?";
     public static String getAdressBooks = "SELECT * FROM adressbooks WHERE iduser = ?";
     public static String updateCardBalance = "UPDATE cards SET balance = ? WHERE idcard = ?";
     public static String updateCardBalancewithIban = "UPDATE cards SET balance = ? WHERE iban = ?";

@@ -134,7 +134,7 @@ public class Menu extends MenuStatements {
             System.out.println("Birth Date: (yyyy-mm-dd)");
             try{
             _Birth_datearray = Arrays.stream(new Scanner(System.in).nextLine().split("-")).mapToInt(Integer::parseInt).toArray();
-            if(_Birth_datearray[1] >= 12 || _Birth_datearray[1] <= 1 || _Birth_datearray[2] >= 31 || _Birth_datearray[2] <= 1){
+            if(_Birth_datearray[1] > 12 || _Birth_datearray[1] < 1 || _Birth_datearray[2] > 31 || _Birth_datearray[2] < 1){
                 System.out.println("Invalid date format");
                 continue;
             }
