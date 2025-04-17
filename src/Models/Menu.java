@@ -375,6 +375,10 @@ public class Menu extends MenuStatements {
 
         cardService.updateCardList(currentUser);
 
+        List<Card> temp = currentUser.getCards();
+        Collections.sort(temp);
+        currentUser.UpdateCards(temp);
+
         System.out.println("CARDS");
         for(Card c : currentUser.getCards()) {
             System.out.println("Card Name: " + c.getCardName());

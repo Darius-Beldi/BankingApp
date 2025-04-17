@@ -9,7 +9,7 @@ import java.util.Random;
 import Services.CardServices;
 import Services.UserService;
 
-public class Card extends CardStatements {
+public class Card extends CardStatements implements Comparable<Card>{
 
     private static int generatedIdCard;
     private int idCard;
@@ -64,7 +64,7 @@ public class Card extends CardStatements {
         idUser = _idUser;
         cardService.insertIntoDatabase(this);
     }
-
+//            Card c = new Card(id, idUser, Name, cardName, IBAN, Number, Month, Year, CVV, Balance);
     public Card(Integer id, Integer idUser, String name, String cardName, String iban, String number, Integer month, Integer year, Integer cvv, Integer balance) {
 
         idCard = id;
@@ -179,5 +179,10 @@ public class Card extends CardStatements {
         details += "Expiration Date: " + Month + "/" + Year + "\n";
         details += "CVV: " + CVV + "\n";
         return details;
+    }
+
+    @Override
+    public int compareTo(Card o) {
+        return this.CardName.compareTo(o.CardName);
     }
 }

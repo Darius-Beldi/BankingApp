@@ -53,6 +53,12 @@ public class CardServices extends MenuStatements {
     }
 
     public void updateCardList(User currentUser) throws SQLException {
+       /*
+       * public static String getCards = "SELECT " +
+            "idCard, idUser, Name, CardName, IBAN, cardNumber, Month, Year, CVV, Balance" +
+            " FROM cards WHERE iduser = ?";
+       * */
+
         getCardsStatement.setInt(1, currentUser.getIdUser());
         ResultSet rsCards = getCardsStatement.executeQuery();
         List<Card> cardstemp = new ArrayList<>();
