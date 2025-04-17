@@ -70,7 +70,7 @@ public class AuthenticationService extends MenuStatements {
     public Boolean isEmailAvailable(String email) throws SQLException {
         checkForExistingEmailStatement.setString(1, email);
         ResultSet rs = checkForExistingEmailStatement.executeQuery();
-        return !rs.next();
+        return rs.next();
     }
 
     public User register(String firstName, String lastName, Date birthDate, String email, String password)
