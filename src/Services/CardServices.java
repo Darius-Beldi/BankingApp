@@ -18,6 +18,7 @@ import static Connection.CardStatements.checkIBANStatement;
 public class CardServices extends MenuStatements {
 
     private CardStatements cardStatements = new CardStatements();
+    private static AuditService auditService = new AuditService();
 
     public void insertIntoDatabase(Card card) throws SQLException {
 
@@ -32,6 +33,8 @@ public class CardServices extends MenuStatements {
         cardStatements.insertCardStatement.setInt(9, card.getBalance());
         cardStatements.insertCardStatement.setString(10, card.getCardName());
         cardStatements.insertCardStatement.executeUpdate();
+
+        auditService.logAction("Card Inserted Successfully with id: "  + card.getIdCard());
     }
 
     public Boolean isIBANUsed(String IBAN) throws SQLException {
@@ -79,6 +82,9 @@ public class CardServices extends MenuStatements {
 
             cardstemp.add(c);
         }
+
+        auditService.logAction("Card Updated Successfully with id: " + currentUser.getIdUser());
+
         currentUser.UpdateCards(cardstemp);
     }
 
@@ -112,6 +118,7 @@ public class CardServices extends MenuStatements {
         updateCardBalancewithIbanStatement.setString(2, a.getIBAN());
         updateCardBalancewithIbanStatement.execute();
 
+        auditService.logAction("Transfer money succesfully from card: " + idCardIncoming + " to card: " + idCardOutgoing + "amount: " +  amount);
         new Transaction(idCardOutgoing, idCardIncoming, amount);
 
     }

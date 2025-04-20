@@ -13,6 +13,9 @@ import static Connection.AdressBookStatements.insertAdressBookStatement;
 
 public class AdressBooksService extends MenuStatements {
 
+    static AuditService auditService = new AuditService();
+
+
     public void insertIntoDatabase(AdressBook a) throws SQLException {
         try {
             insertAdressBookStatement.setInt(1, a.getIdAdressBook());
@@ -20,6 +23,7 @@ public class AdressBooksService extends MenuStatements {
             insertAdressBookStatement.setString(3, a.getName());
             insertAdressBookStatement.setString(4, a.getIBAN());
             insertAdressBookStatement.executeUpdate();
+            auditService.logAction("Inserted AdressBook with id : " + a.getIdAdressBook());
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -40,6 +44,8 @@ public class AdressBooksService extends MenuStatements {
 
             adressBookstemp.add(a);
         }
+
+        auditService.logAction("Read All AdressBooks from the user: " +  currentUser.getIdUser());
         return adressBookstemp;
     }
 }

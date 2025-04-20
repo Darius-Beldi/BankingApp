@@ -22,7 +22,10 @@ public class Menu extends MenuStatements {
     static {
         idCurrentUser = -1;
     }
-
+    {
+        AuditService auditService = new AuditService();
+        auditService.logAction("Loaded Menu class");
+    }
     public Menu() {
         this.authService = new AuthenticationService();
         this.userService = new UserService();

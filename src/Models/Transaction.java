@@ -1,6 +1,7 @@
 package Models;
 
 import Connection.TransactionStatements;
+import Services.AuditService;
 import Services.TransactionService;
 
 import java.sql.PreparedStatement;
@@ -35,7 +36,10 @@ public class Transaction extends TransactionStatements {
             e.printStackTrace(); // Consider logging the exception
         }
     }
-
+    {
+        AuditService auditService = new AuditService();
+        auditService.logAction("Loaded Transaction class");
+    }
     public Transaction(int _idCardOutgoing, int _idCardIncoming, Integer _amount) throws SQLException, ClassNotFoundException {
 
         generatedIdTransaction++;

@@ -6,6 +6,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Random;
+
+import Services.AuditService;
 import Services.CardServices;
 import Services.UserService;
 
@@ -28,7 +30,7 @@ public class Card extends CardStatements implements Comparable<Card>{
 
     static {
         try {
-            PreparedStatement selectStatement = c.prepareStatement("SELECT idCard FROM Cards ORDER BY idUser DESC LIMIT 1");
+            PreparedStatement selectStatement = c.prepareStatement("SELECT idCard FROM Cards ORDER BY idCard DESC LIMIT 1");
             ResultSet rs = selectStatement.executeQuery();
 
             if (rs.next()) {
@@ -44,7 +46,10 @@ public class Card extends CardStatements implements Comparable<Card>{
             e.printStackTrace();
         }
     }
-
+    {
+        AuditService auditService = new AuditService();
+        auditService.logAction("Loaded Card class");
+    }
     /// New Card Generator
     public Card(Integer _idUser, String _CardName) throws SQLException, NoSuchAlgorithmException {
         generatedIdCard += 1;

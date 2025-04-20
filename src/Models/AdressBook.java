@@ -2,6 +2,7 @@ package Models;
 
 import Connection.AdressBookStatements;
 import Services.AdressBooksService;
+import Services.AuditService;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -33,6 +34,11 @@ public class AdressBook extends AdressBookStatements {
             generatedIdAdressBook = 0;
             e.printStackTrace(); // Consider logging the exception
         }
+    }
+
+    {
+        AuditService auditService = new AuditService();
+        auditService.logAction("Loaded AdressBook class");
     }
 
     public AdressBook(User _user, String _name, String _IBAN) throws SQLException {

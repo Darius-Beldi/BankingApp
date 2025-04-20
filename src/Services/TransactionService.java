@@ -12,6 +12,8 @@ import static Connection.TransactionStatements.insertTransactionStatement;
 
 public class TransactionService extends MenuStatements {
 
+    private static AuditService auditService = new AuditService();
+
 
     public void insertIntoDatabase(Transaction transaction) throws SQLException, ClassNotFoundException {
         insertTransactionStatement.setInt(1, transaction.getIdTransaction());
@@ -20,6 +22,8 @@ public class TransactionService extends MenuStatements {
         insertTransactionStatement.setDouble(4, transaction.getAmount());
         insertTransactionStatement.setDate(5, new java.sql.Date(transaction.getDate().getTime()));
         insertTransactionStatement.execute();
+
+        auditService.logAction("Transaction inserted with id: " +  transaction.getIdTransaction());
     }
 
 

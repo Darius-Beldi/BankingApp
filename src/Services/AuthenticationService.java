@@ -31,6 +31,7 @@ public class AuthenticationService extends MenuStatements {
 
         return hexString.toString();
     }
+    private static AuditService  auditService = new AuditService();
 
     public User login(String email, String password) throws SQLException, NoSuchAlgorithmException {
         checkForExistingEmailStatement.setString(1, email);
@@ -54,6 +55,8 @@ public class AuthenticationService extends MenuStatements {
                         Date birthDate = rsUser.getDate(4);
                         String userEmail = rsUser.getString(5);
                         String userPassword = rsUser.getString(6);
+
+                        auditService.logAction("Logged in successfully for user: " +  id);
                         return new User(id, firstName, lastName, birthDate, userEmail, userPassword, true, new ArrayList<>());
                     }
 

@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.*;
 
 import Connection.*;
+import Services.AuditService;
 import Services.UserService;
 
 public class  User extends UserStatements{
@@ -44,6 +45,12 @@ public class  User extends UserStatements{
             e.printStackTrace(); // Consider logging the exception
         }
     }
+
+    {
+        AuditService auditService = new AuditService();
+        auditService.logAction("Loaded User class");
+    }
+
     public User(Integer _id, String _FirstName, String _LastName, Date _BirthDate, String _Email, String _Password, Boolean alreadyInDatabase, List<Card> _cards) throws NoSuchAlgorithmException, SQLException {
         if(alreadyInDatabase){
             idUser = _id;

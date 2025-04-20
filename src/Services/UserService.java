@@ -16,10 +16,11 @@ public class UserService extends MenuStatements {
 
     private AuthenticationService authService;
     private UserStatements userStatements;
-
+    private static AuditService auditService;
     public UserService() {
         this.authService = new AuthenticationService();
         this.userStatements = new UserStatements();
+        this.auditService = new AuditService();
     }
 
     public User getUserDetails(int userId) throws SQLException, NoSuchAlgorithmException {
@@ -51,6 +52,9 @@ public class UserService extends MenuStatements {
             updatePasswordStatement.setInt(2, user.getIdUser());
             updatePasswordStatement.execute();
             user.setPassword(hashedNewPassword);
+
+            auditService.logAction("Changed the password for  user " + user.getIdUser());
+
             return true;
         }
         return false;
@@ -67,6 +71,8 @@ public class UserService extends MenuStatements {
         userStatements.insertUserStatement.setString(5, user.getEmail());
         userStatements.insertUserStatement.setString(6, user.getPassword());
         userStatements.insertUserStatement.execute();
+
+        auditService.logAction("Added user " + user.getIdUser());
     }
 
     public String userFirstName(int userId) throws SQLException, NoSuchAlgorithmException {
