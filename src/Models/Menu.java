@@ -3,9 +3,7 @@ package Models;
 import Connection.MenuStatements;
 import Services.*;
 
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
