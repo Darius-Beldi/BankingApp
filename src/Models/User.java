@@ -21,6 +21,7 @@ public class  User extends UserStatements{
     private String Email;
     private String Password;
     private List<Card> cards;
+
     private static UserService userService;
 
     {

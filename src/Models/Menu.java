@@ -1,5 +1,6 @@
 package Models;
 
+import Connection.InitializeDatabase;
 import Connection.MenuStatements;
 import Services.*;
 
@@ -7,8 +8,11 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.*;
 
+import static Services.AuthenticationService.Crypt;
+
 public class Menu extends MenuStatements {
 
+    private static boolean toInitializeDataBase = false;
     private static Integer idCurrentUser;
     private static User currentUser;
     private AuthenticationService authService;
@@ -16,6 +20,7 @@ public class Menu extends MenuStatements {
     private CardServices cardService;
     private TransactionService transactionService;
     private AdressBooksService addressBookService;
+    private InitializeDatabase  initializeDatabase;
 
     static {
         idCurrentUser = -1;
@@ -32,10 +37,37 @@ public class Menu extends MenuStatements {
         this.addressBookService = new AdressBooksService();
     }
 
-
+    private void databaseInitialization(){
+        while(true) {
+            System.out.println("Do you want to initialize database? (y/n)");
+            Scanner sc = new Scanner(System.in);
+            String input = sc.nextLine();
+            if(input.equals("y")) {
+                while(true) {
+                    System.out.println("Do you want to populate the database with default values?  (y/n)");
+                    Scanner sc2 = new Scanner(System.in);
+                    String input2 = sc2.nextLine();
+                    if(input2.equals("y")) {
+                        initializeDatabase = new InitializeDatabase(true, true);
+                        return;
+                    }
+                    if(input2.equals("n")) {
+                        initializeDatabase = new InitializeDatabase(true, false);
+                        return;
+                    }
+                }
+            }
+            if(input.equals("n")) {
+                return;
+            }
+        }
+    }
 
     //Functions that use the auth service
     public void menu() throws SQLException {
+        if(toInitializeDataBase)
+            databaseInitialization();
+
         while(true){
             if (chooseLorR()) //true= login , false = register
                 try {

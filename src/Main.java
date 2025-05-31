@@ -8,12 +8,10 @@ import Models.Menu;
 
 import java.lang.String;
 
-public class Main extends InitializeDatabase {
+public class Main{
 
     public static void main(String[] args) throws FileNotFoundException, NoSuchAlgorithmException, SQLException {
         Menu m = new Menu();
         m.menu();
-
-
     }
 }
