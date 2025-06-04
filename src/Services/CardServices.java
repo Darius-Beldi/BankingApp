@@ -12,8 +12,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static Connection.CardStatements.checkCardNumbersStatement;
-import static Connection.CardStatements.checkIBANStatement;
+import static Connection.CardStatements.*;
 
 public class CardServices extends MenuStatements {
 
@@ -121,5 +120,11 @@ public class CardServices extends MenuStatements {
         auditService.logAction("Transfer money succesfully from card: " + idCardIncoming + " to card: " + idCardOutgoing + "amount: " +  amount);
         new Transaction(idCardOutgoing, idCardIncoming, amount);
 
+    }
+
+    public void deleteCards(Integer idUser) throws SQLException {
+        deleteCardsStatement.setInt(1, idUser);
+        deleteCardsStatement.executeUpdate();
+        auditService.logAction("Cards Deleted Successfully for the userId: " + idUser);
     }
 }

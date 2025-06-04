@@ -11,6 +11,7 @@ import java.lang.String;
 public class Main{
 
     public static void main(String[] args) throws FileNotFoundException, NoSuchAlgorithmException, SQLException {
+
         Menu m = new Menu();
         m.menu();
     }

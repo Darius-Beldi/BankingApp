@@ -8,11 +8,13 @@ public class UserStatements extends ConnectionString{
             " values (?, ?, ?, ?, ?, ?)";
     public static PreparedStatement insertUserStatement;
     protected static PreparedStatement selectUserStatement;
+    public static String deleteUserSQL = "DELETE FROM users WHERE iduser = ?";
+    public static PreparedStatement deleteUserStatement;
 
     {
         try {
             insertUserStatement = c.prepareStatement(insertUser);
-
+            deleteUserStatement = c.prepareStatement(deleteUserSQL);
         } catch (Exception e) {
             e.printStackTrace();
         }

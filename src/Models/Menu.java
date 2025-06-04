@@ -12,7 +12,7 @@ import static Services.AuthenticationService.Crypt;
 
 public class Menu extends MenuStatements {
 
-    private static boolean toInitializeDataBase = false;
+    private static boolean toInitializeDataBase = true;
     private static Integer idCurrentUser;
     private static User currentUser;
     private AuthenticationService authService;
@@ -144,7 +144,6 @@ public class Menu extends MenuStatements {
                 System.out.println("Invalid date format");
                 continue;
             }
-
             _Birth_date = new Date(_Birth_datearray[0] - 1900, _Birth_datearray[1]-1, _Birth_datearray[2]-1);
             }catch (Exception e){
                 System.out.println("Invalid date format");
@@ -376,7 +375,8 @@ public class Menu extends MenuStatements {
             System.out.println("1. View Details");
             System.out.println("2. Change Password");
             System.out.println("3. See Cards");
-            System.out.println("4. Back");
+            System.out.println("4. Delete Account");
+            System.out.println("5. Back");
             Scanner sc = new Scanner(System.in);
             String option = sc.nextLine();
             switch(option){
@@ -390,6 +390,8 @@ public class Menu extends MenuStatements {
                     seeCards();
                     break;
                 case "4":
+                    deleteAccount();
+                case "5":
                     mainPage();
                     return;
                 default:
@@ -399,9 +401,42 @@ public class Menu extends MenuStatements {
         }
     }
 
+    private void deleteAccount () throws SQLException, NoSuchAlgorithmException, ClassNotFoundException {
+        while(true){
+            System.out.println("DELETE ACCOUNT");
+            System.out.println("Are you sure you want to delete your account? This action is permanent and can't be reversed! (y/n)");
+            Scanner sc = new Scanner(System.in);
+            String option = sc.nextLine();
+            switch(option){
+                case "y":
+                {
+                    while(true){
+                        System.out.println("Enter your password: ");
+                        Scanner sc2 = new Scanner(System.in);
+                        String password = sc2.nextLine();
+                        if(User.Crypt(password).equals(currentUser.getPassword())) {
+                            UserService.delete(currentUser);
+                            System.out.println("deleting");
+                            menu();
+                        }
+                        else{
+                            if(password.equals("1")){
+                                return;
+                            }
+                            System.out.println("Wrong password. Try again or press 1 to cancel.");
+                        }
+                    }
+                }
 
-
-
+                case "n":
+                    viewAccount();
+                    return;
+                default:
+                    System.out.println("Wrong input. Please try again");
+                    break;
+            }
+        }
+    }
 
 
     private void seeCards() throws SQLException {

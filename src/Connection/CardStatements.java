@@ -15,6 +15,7 @@ public class CardStatements extends ConnectionString {
     public static String checkCardNumbers = "SELECT 1 FROM cards WHERE cardnumber = ?";
     public static String getUserFirstName = "SELECT Firstname FROM users WHERE iduser = ?";
     public static String getUserLastName = "SELECT lastname FROM users WHERE iduser = ?";
+    public static String deleteCardsSQL = "DELETE FROM cards WHERE iduser = ?";
 
     public static PreparedStatement insertCardStatement;
     public static PreparedStatement selectCardStatement;
@@ -22,6 +23,7 @@ public class CardStatements extends ConnectionString {
     public static PreparedStatement checkCardNumbersStatement;
     public static PreparedStatement getUserFirstNameStatement;
     public static PreparedStatement getUserLastNameStatement;
+    public static PreparedStatement deleteCardsStatement;
 
 
     static {
@@ -32,6 +34,7 @@ public class CardStatements extends ConnectionString {
             checkCardNumbersStatement = c.prepareStatement(checkCardNumbers);
             getUserFirstNameStatement = c.prepareStatement(getUserFirstName);
             getUserLastNameStatement = c.prepareStatement(getUserLastName);
+            deleteCardsStatement = c.prepareStatement(deleteCardsSQL);
 
 
         } catch (Exception e) {

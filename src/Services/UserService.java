@@ -1,6 +1,7 @@
 package Services;
 
 import Connection.MenuStatements;
+import Models.Transaction;
 import Models.User;
 
 import java.security.NoSuchAlgorithmException;
@@ -15,12 +16,28 @@ import static Connection.CardStatements.getUserLastNameStatement;
 public class UserService extends MenuStatements {
 
     private AuthenticationService authService;
-    private UserStatements userStatements;
+    private static UserStatements userStatements;
     private static AuditService auditService;
+
     public UserService() {
         this.authService = new AuthenticationService();
         this.userStatements = new UserStatements();
         this.auditService = new AuditService();
+    }
+
+    public static void delete(User currentUser) throws SQLException {
+
+        CardServices cardServices = new CardServices();
+
+        AdressBooksService.deleteAdressBooks(currentUser.getIdUser());
+
+        cardServices.deleteCards(currentUser.getIdUser());
+
+        userStatements.deleteUserStatement.setInt(1, currentUser.getIdUser());
+        userStatements.deleteUserStatement.executeUpdate();
+
+        auditService.logAction("User  Deleted Successfully with id: "  + currentUser.getIdUser());
+
     }
 
     public User getUserDetails(int userId) throws SQLException, NoSuchAlgorithmException {

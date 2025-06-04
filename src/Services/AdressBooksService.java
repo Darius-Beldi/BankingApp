@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 
+import static Connection.AdressBookStatements.deleteAdressBooksStatement;
 import static Connection.AdressBookStatements.insertAdressBookStatement;
 
 public class AdressBooksService extends MenuStatements {
@@ -45,7 +46,13 @@ public class AdressBooksService extends MenuStatements {
             adressBookstemp.add(a);
         }
 
-        auditService.logAction("Read All AdressBooks from the user: " +  currentUser.getIdUser());
+        auditService.logAction("Read all AdressBooks from the user: " +  currentUser.getIdUser());
         return adressBookstemp;
+    }
+
+    public static void deleteAdressBooks(Integer idUser) throws SQLException {
+        deleteAdressBooksStatement.setInt(1, idUser);
+        deleteAdressBooksStatement.executeUpdate();
+        auditService.logAction("Deleted all AdressBooks from the user: " + idUser);
     }
 }

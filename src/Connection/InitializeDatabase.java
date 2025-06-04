@@ -15,12 +15,12 @@ public class InitializeDatabase extends ConnectionString{
 
     private static String createTransactionsTable = "CREATE TABLE IF NOT EXISTS transactions (\n"
             + "idtransaction INT AUTO_INCREMENT PRIMARY KEY,\n"
-            + "idcardoutgoing INT NOT NULL,\n"
-            + "idcardincoming INT NOT NULL,\n"
+            + "idcardoutgoing INT NULL,\n"
+            + "idcardincoming INT NULL,\n"
             + "amount DECIMAL(10,2) NOT NULL,\n"
             + "date DATE NOT NULL,\n"
-            + "FOREIGN KEY (idcardoutgoing) REFERENCES cards(idcard),\n"
-            + "FOREIGN KEY (idcardincoming) REFERENCES cards(idcard)\n"
+            + "FOREIGN KEY (idcardoutgoing) REFERENCES cards(idcard) ON DELETE SET NULL,\n"
+            + "FOREIGN KEY (idcardincoming) REFERENCES cards(idcard) ON DELETE SET NULL\n"
             + ");";
 
     private static String createCardsTable = "CREATE TABLE IF NOT EXISTS cards (\n"
