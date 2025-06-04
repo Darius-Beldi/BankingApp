@@ -3,7 +3,7 @@ package Connection;
 
 import java.sql.PreparedStatement;
 
-public class CardStatements extends ConnectionString {
+public class CardStatements extends ConnectionString{
 
     public static String insertCard = "insert into cards " +
             "(idcard, iduser, name, iban, cardnumber, month, year, cvv, balance, cardname)" +
