@@ -19,7 +19,8 @@ BankingApp is a simple Java console application for simulating basic banking fun
 - Java 8 or newer
 - MySQL server running on `localhost:3306`
 - Changing the `user` and `password` from ConnectionString class
-
+- Import the database server module
+  
 ### Database
 
 On first run, for the app to prompt you to initialize and optionally populate the database set the flag `toInitializeDataBase` to true from `Menu` . The SQL schema and default data are managed by the app (`InitializeDatabase.java`). No manual SQL setup is required.
